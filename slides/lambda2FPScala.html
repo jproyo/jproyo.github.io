@@ -6,10 +6,10 @@
     <title>From Lambda Calculus to Scala FP | by Juan Pablo Royo @juanpabloroyo</title>
     <meta name="description" content="From Lambda Calculus to Scala FP Slides" />
     <meta name="author" content="Juan Pablo Royo Sales" />
-    <link rel="stylesheet" href="/css/zenburn.css">
+    <link rel="stylesheet" href="/css/hybrid.css">
 
     <!--
-        Styles specific for this example presentation. 
+        Styles specific for this example presentation.
     -->
     <link href="/css/markdown-slides.css" rel="stylesheet" />
     <link href="/css/devopsy.css" rel="stylesheet" />
@@ -28,49 +28,66 @@
 
 <h1>From Lambda Calculus to Scala FP</h1>
 <div style="display: block;">
-<img src="/assets/images/super-lambda.jpg" style="float: left"/>
-<img src="/assets/images/scala.png" style="float: right; width: 21%"/>
+  <img src="/assets/images/super-lambda.jpg" style="float: left"/>
+  <img src="/assets/images/scala.png" style="float: right; width: 21%"/>
 </div>
 </div>
 
-<div id="markdown" class="step slide markdown" data-rel-x="1800" data-rel-y="0">
-# Agenda
 
-* A brief of History
-* Functional Programming
-* Data structures: Datatypes, Types, Typeclasses and more
-* for comprehension? Is there a conspiracy?
-* From imperative to FP ~ Super λ
-* Extras: Category Theory
+<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="50">
 
------
-# Agenda
+<h1>Agenda</h1>
+<ul>
+  <li>A brief of History</li>
+  <li>Functional Programming</li>
+  <li>Data structures: Datatypes, Types, Typeclasses and more</li>
+  <li>for comprehension? Is there a conspiracy?</li>
+  <li>From imperative to FP λ</li>
+  <li>Extras: Category Theory and other FP techniques</li>
+</ul>
 
-* **A brief of History**
-* Functional Programming
-* Data structures: Datatypes, Types, Typeclasses and more
-* for comprehension? Is there a conspiracy?
-* From imperative to FP ~ Super λ
-* Extras: Category Theory
+</div>
 
------
-# Computability Theory
+<div class="step slide" data-rel-x="1700" data-rel-y="100">
 
-* Branch of mathematics (logic) - Study of computable Functions / Solvable Problems. (Before 1930 - No machines) * $ f(x) = y $ *
+<h1>Agenda</h1>
+<ul>
+  <li><strong>A brief of History</strong></li>
+  <li>Functional Programming</li>
+  <li>Data structures: Datatypes, Types, Typeclasses and more</li>
+  <li>for comprehension? Is there a conspiracy?</li>
+  <li>From imperative to FP λ</li>
+  <li>Extras: Category Theory and other FP techniques</li>
+</ul>
 
------
+</div>
+
+<div class="step slide" data-rel-x="1600" data-rel-y="100" data-rotate="50">
+
+<h1>Computability Theory</h1>
+<blockquote>
+<p>
+  Branch of mathematics <b>(logic)</b> - Study of <b>Computable Functions</b> / Solvable Problems. (Before 1930 - No machines)
+  $ f(x) = y $
+</p>
+</blockquote>
+</div>
+
+<div class="step slide markdown" data-rel-x="1700" data-rel-y="100">
+
 # Computability Theory
 
 > ![Hilbert](/assets/images/Hilbert.jpg) Belived all problems were solvable, but around 1930  Gödel, Turing, and Church showed that this is not the case.
 
------
+</div>
+
+<div class="step slide markdown" data-rel-x="1700" data-rel-y="200" data-rotate="-50">
 # Computability Theory
 
-![Alonzo Church](/assets/images/Alonzo_Church.jpg)
-> Discovered/Introduced in 1930 Lambda Calculus as a formal system for expressing computations based on function abstractions and function applications.
+![Alonzo Church](/assets/images/Alonzo_Church.jpg) Discovered/Introduced in 1930 **Lambda Calculus** as a formal system for expressing computations based on function abstractions and function applications.
 
-
------
+</div>
+<div class="step slide markdown" data-rel-x="1700" data-rel-y="200" data-rotate="50">
 # Lambda Calculus (a.k.a. Untyped Lambda Calculus)
 
 * Lambda Terms - Only 3 elements
@@ -79,105 +96,174 @@ $ Set \Lambda of all \lambda-terms$
 $ (Variable) | u \in V \implies u \in \Lambda$
 $ (Application) | M \land N \in \Lambda \implies (MN) \in \Lambda$
 $ (Abstraction) | u \in V \land M \in \Lambda \implies \(\lambda u.M\) \in \Lambda$
-
------
+</div>
+<div class="step slide markdown" data-rel-x="1700" data-rel-y="200">
 # $\(\lambda u.M\)$ Examples
 
 * Booleans = True | False
   * $ \lambda xy.x \cong TRUE$
-  * $ \lambda xy.y \cong FALSE$ 
+  * $ \lambda xy.y \cong FALSE$
 * Natural Numbers
   * $ 0 \cong \lambda fx.x$
   * $ 1 \cong \lambda fx.fx$
   * $ 2 \cong \lambda fx.f\(fx\)$
   * $ 3 \cong \lambda fx.f\(f\(fx\)\)$
   * and so on.....
------
-# Agenda
+</div>
 
-* A brief of History
-* **Functional Programming**
-* Data structures: Datatypes, Types, Typeclasses and more
-* for comprehension? Is there a conspiracy?
-* From imperative to FP ~ Super λ
-* Extras: Category Theory
+<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="50">
 
------
+<h1>Agenda</h1>
+<ul>
+  <li>A brief of History</li>
+  <li><strong>Functional Programming</strong></li>
+  <li>Data structures: Datatypes, Types, Typeclasses and more</li>
+  <li>for comprehension? Is there a conspiracy?</li>
+  <li>From imperative to FP λ</li>
+  <li>Extras: Category Theory and other FP techniques</li>
+</ul>
+
+</div>
+
+<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="-50">
+
+<h1>Functional Programming</h1>
+<ul>
+  <li>Paradigm that relies on functions modeled on <b>mathematical functions $\cong \lambda Calculus?$</b></li>
+  <li>Functions are <b>First-class</b></li>
+  <li>Pure functions
+    <ul>
+      <li>Referential transparency: <b>same function</b>, given the <b>same values</b> to be evaluated, will always return the <b>same result</b> $\cong Math$</li>
+    </ul>
+  </li>
+  <li>Why is RF so important?
+    <ul>
+      <li>Deterministic, Composable, Testable, No Side Effects Programs</li>
+    </ul>
+  </li>
+</ul>
+
+</div>
+
+<div class="step slide markdown" data-rel-x="1700" data-rel-y="200" data-rotate="50">
 # Functional Programming
-* Paradigm that relies on functions modeled on mathematical functions $\cong \lambda Calculus?$
-* Functions are First-class
-* Pure functions 
-  * Referential transparency: **same function, given the same values to be evaluated, will always return the same result** $\cong Math$
-* Why is RF so important?
-  * Deterministic, Composable, Testable, No Side Effects Programs
-
------
-# Functional Programming
-> Strong FP languages like Haskell, Scala, Agda, etc also are "*Lazy*" and Strict Typed Language.
+> Well defined FP languages like Haskell, Scala, Agda, etc also are **Lazy** and Strict Typed Language.
 > Combination of all these properties build well formal defined language tooling
 
-$ \lambda Calculus + Type Theory + Lazyness \implies Super Language $
+$ \lambda Calculus \land Type Theory \land Lazyness \implies Super Language $
+</div>
 
------
-# Agenda
+<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="-50">
 
-* A brief of History
-* Functional Programming
-* **Data structures: Datatypes, Types, Typeclasses and more**
-* for comprehension? Is there a conspiracy?
-* From imperative to FP ~ Super λ
-* Extras: Category Theory
+<h1>Agenda</h1>
+<ul>
+  <li>A brief of History</li>
+  <li>Functional Programming</li>
+  <li><strong>Data structures: Datatypes, Types, Typeclasses and more</strong></li>
+  <li>for comprehension? Is there a conspiracy?</li>
+  <li>From imperative to FP λ</li>
+  <li>Extras: Category Theory and other FP techniques</li>
+</ul>
 
------
-# Data Structures
-## Sum Types $ A + B $ Either, IO, etc
+</div>
 
+<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="50">
+<h1>Data Structures</h1>
+<h2>Sum Types $ A + B $ Either, IO, etc</h2>
+<pre>
+  <code class="scala htl">
     sealed abstract class Either[+A, +B]
     final case class Left[+A, +B](a: A) extends Either[A, B]
-    final case class Right[+A, +B](b: B) extends Either[A, B] 
-
-# In Haskell 
-
+    final case class Right[+A, +B](b: B) extends Either[A, B]
+  </code>
+</pre>
+<h2>In Haskell :D</h2>
+<pre>
+  <code class="haskell htl">
     data Either a b = Left a | Right b
+  </code>
+  </pre>
+</div>
 
------
-# Data Structures
-## Product Types $ A * B $ Any Class
-
+<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="-50">
+<h1>Data Structures</h1>
+<h2>Product Types $ A * B $ Any Class</h2>
+<pre>
+  <code class="scala htl">
     case class User(address: Address, name: String, surname: String)
     case class Billing(items: Seq[Item], user: User, ...)
-
-# Haskell ...
-
+  </code>
+</pre>
+<h2>Haskell ...</h2>
+<pre>
+  <code class="haskell htl">
     data User = User Address String String
     -- Or with named records
-    data User = User { address: Address, name: String, surname: String } 
+    data User = User { address: Address, name: String, surname: String }
+  </code>
+  </pre>
+</div>
 
------
-# Data Structures
-## Exponential Types $ B^A $ Functions!!
-
-
+<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="-50">
+<h1>Data Structures</h1>
+<h2>Exponential Types $ B^A \cong Functions $</h2>
+<pre>
+  <code class="scala htl">
     def f: A => B = ...
     def f(a: A): B = ...
-
-# In Haskell
-
+  </code>
+</pre>
+<h2>Haskell ...</h2>
+<pre>
+  <code class="haskell htl">
     f :: A -> B
+  </code>
+  </pre>
+</div>
 
------
-# Data Structures
-* All we need are 3 Types: Sum, Product and Exponentials
-* **And what about Typeclasses?**
+<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="50">
+<h1>Data Structures</h1>
+<ul>
+  <li>All we need are 3 Types: Sum, Product and Exponentials</li>
+  <li>Because of this are also known as ADT - **Algebraic Data Types**</li>
+</ul>
+<h2>High School</h2>
+<ul>
+  <li>$ (A*B)^C = A^C * B^C $</li>
+</ul>
+<pre>
+  <code class="scala htl">
+    case class Product[+A, +B](a: A, b: B)
 
------
+    def f[+A,+B,+C](c: C): Product[A,B]
+
+    def ca[+A,+C](c: C): A
+    def cb[+B,+C](c: C): B
+
+    def caCbToProd[+A,+B,+C](c: C) = Product(ca(c), cb(b))
+  </code>
+</pre>
+</div>
+
+<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="50">
+<h1>Other Isomorphisms</h1>
+<ul>
+  <li>$ C^{A*B} = C^A * C^B $</li>
+  <li>$ B^{A^C} = B^{A*C} $</li>
+</ul>
+<h2>And what about Typeclasses?</h2>
+</div>
+
+<div class="step slide markdown" data-rel-x="1700" data-rel-y="100" data-rotate="-50">
 # Data Structures
 ## Typeclasses
 > A set of types which have certain operations defined for them. We also called Algebras sometime in FP.
+</div>
 
------
-# Typeclasses in Scala
-
+<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="50">
+<h1>Typeclasses in Scala</h1>
+<pre>
+  <code class="scala htl">
     trait Functor[F[_]] {
       def map[A, B](fa: F[A])(f: A => B): F[B]
     }
@@ -189,24 +275,42 @@ $ \lambda Calculus + Type Theory + Lazyness \implies Super Language $
         case Some(a) => Some(f(a))
       }
     }
+  </code>
+</pre>
+</div>
+<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="50">
+<h1>and in Haskell</h1>
+<pre>
+  <code class="haskell htl">
+    class Functor f where
+      fmap :: (a -> b) -> f a -> f b
 
------
-# Agenda
+    instance Functor Maybe where
+      fmap f (Just x) = Just (f x)
+      fmap _ Nothing  = Nothing
+  </code>
+  </pre>
+</div>
 
-* A brief of History
-* Functional Programming
-* Data structures: Datatypes, Types, Typeclasses and more
-* **for comprehension? Is there a conspiracy?**
-* From imperative to FP ~ Super λ
-* Extras: Category Theory
+<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="-50">
 
+<h1>Agenda</h1>
+<ul>
+  <li>A brief of History</li>
+  <li>Functional Programming</li>
+  <li>Data structures: Datatypes, Types, Typeclasses and more</li>
+  <li><strong>for comprehension? Is there a conspiracy?</strong></li>
+  <li>From imperative to FP λ</li>
+  <li>Extras: Category Theory and other FP techniques</li>
+</ul>
 
------
-# for comprehension? Is there a conspiracy?
-> It is a syntactic sugar for the combination of flatMap, map and withFilter. Nothing else, nothing more
+</div>
 
------
-
+<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="50">
+<h1>for comprehension? Is there a conspiracy?</h1>
+<ul><li>It is a <b>syntactic sugar</b> for the combination of flatMap, map and withFilter. Nothing else, nothing more</li></ul>
+<pre>
+  <code class="scala htl">
     for {
       i <- a
       j <- b
@@ -220,10 +324,14 @@ $ \lambda Calculus + Type Theory + Lazyness \implies Super Language $
         }
       }
     }
+</code>
+</pre>
+</div>
 
------
-# With Filters
-
+<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="-50">
+<h1>With Filters</h1>
+<pre>
+  <code class="scala htl">
     for {
       i <- a
       j <- b
@@ -232,16 +340,19 @@ $ \lambda Calculus + Type Theory + Lazyness \implies Super Language $
     } yield (i + j + k)
 
     a.flatMap { i =>
-      b.withFilter { j => i > j }.flatMap { j => 
+      b.withFilter { j => i > j }.flatMap { j =>
         c.map {
           k => i + j + k
         }
       }
     }
-
------
-# With Assignments
-
+  </code>
+</pre>
+</div>
+<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="50">
+<h1>With Assignments</h1>
+<pre>
+  <code class="scala htl">
     for {
       i <- a
       j <- b
@@ -250,47 +361,59 @@ $ \lambda Calculus + Type Theory + Lazyness \implies Super Language $
     } yield (ij + k)
 
     a.flatMap { i =>
-      b.map { j => (j, i+j) }.flatMap { (j, ij) => 
+      b.map { j => (j, i+j) }.flatMap { (j, ij) =>
         c.map {
           k => ij + k
         }
       }
     }
+  </code>
+</pre>
+</div>
+<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="-50">
 
------
-# Agenda
+<h1>Agenda</h1>
+<ul>
+  <li>A brief of History</li>
+  <li>Functional Programming</li>
+  <li>Data structures: Datatypes, Types, Typeclasses and more</li>
+  <li>for comprehension? Is there a conspiracy</li>
+  <li><strong>From imperative to FP λ?</strong></li>
+  <li>Extras: Category Theory and other FP techniques</li>
+</ul>
 
-* A brief of History
-* Functional Programming
-* Data structures: Datatypes, Types, Typeclasses and more
-* for comprehension? Is there a conspiracy?
-* **From imperative to FP ~ Super λ**
-* Extras: Category Theory
+</div>
 
------
-# From imperative to FP ~ Super $ \lambda $  
+<div class="step slide markdown" data-rel-x="1700" data-rel-y="100" data-rotate="50">
+
+# From imperative to FP $ \lambda $
 
 ## Coding Time!! ![Coding time](https://media.giphy.com/media/zOvBKUUEERdNm/giphy.gif)
 
+</div>
 
------
-# Agenda
+<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="-50">
 
-* A brief of History
-* Functional Programming
-* Data structures: Datatypes, Types, Typeclasses and more
-* for comprehension? Is there a conspiracy?
-* From imperative to FP ~ Super λ
-* **Extras: Category Theory**
+<h1>Agenda</h1>
+<ul>
+  <li>A brief of History</li>
+  <li>Functional Programming</li>
+  <li>Data structures: Datatypes, Types, Typeclasses and more</li>
+  <li>for comprehension? Is there a conspiracy</li>
+  <li>From imperative to FP λ?</li>
+  <li><strong>Extras: Category Theory and other FP techniques</strong></li>
+</ul>
 
------
-# Extras: Category Theory
+</div>
+<div class="step slide markdown" data-rel-x="1700" data-rel-y="100" data-rotate="50">
+# Extras: Category Theory and other FP techniques
 * Functor
 * Monoid
 * Applicative
 * Monad
-
-
+* Reader, Writer, State
+* Monad Transformers
+* Free Monads
 </div>
 
 <script type="text/javascript">
@@ -335,7 +458,7 @@ var disableEffectsCss = function(){
 <!--
     To make all described above really work, you need to include impress.js in the page.
     You also need to call a `impress().init()` function to initialize impress.js presentation.
-    And you should do it in the end of your document. 
+    And you should do it in the end of your document.
 -->
 <script>impress().init();</script>
 </body>
