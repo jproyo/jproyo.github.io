@@ -1,0 +1,342 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>From Lambda Calculus to Scala FP | by Juan Pablo Royo @juanpabloroyo</title>
+    <meta name="description" content="From Lambda Calculus to Scala FP Slides" />
+    <meta name="author" content="Juan Pablo Royo Sales" />
+    <link rel="stylesheet" href="/css/zenburn.css">
+
+    <!--
+        Styles specific for this example presentation. 
+    -->
+    <link href="/css/markdown-slides.css" rel="stylesheet" />
+    <link href="/css/devopsy.css" rel="stylesheet" />
+    <link href="/css/effects.css" rel="stylesheet" />
+</head>
+
+<body class="impress-not-supported">
+<div class="fallback-message">
+    <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+    <p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
+</div>
+
+<div id="impress" data-transition-duration="700">
+
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
+
+<h1>From Lambda Calculus to Scala FP</h1>
+<div style="display: block;">
+<img src="/assets/images/super-lambda.jpg" style="float: left"/>
+<img src="/assets/images/scala.png" style="float: right; width: 21%"/>
+</div>
+</div>
+
+<div id="markdown" class="step slide markdown" data-rel-x="1800" data-rel-y="0">
+# Agenda
+
+* A brief of History
+* Functional Programming
+* Data structures: Datatypes, Types, Typeclasses and more
+* for comprehension? Is there a conspiracy?
+* From imperative to FP ~ Super λ
+* Extras: Category Theory
+
+-----
+# Agenda
+
+* **A brief of History**
+* Functional Programming
+* Data structures: Datatypes, Types, Typeclasses and more
+* for comprehension? Is there a conspiracy?
+* From imperative to FP ~ Super λ
+* Extras: Category Theory
+
+-----
+# Computability Theory
+
+* Branch of mathematics (logic) - Study of computable Functions / Solvable Problems. (Before 1930 - No machines) * $ f(x) = y $ *
+
+-----
+# Computability Theory
+
+> ![Hilbert](/assets/images/Hilbert.jpg) Belived all problems were solvable, but around 1930  Gödel, Turing, and Church showed that this is not the case.
+
+-----
+# Computability Theory
+
+![Alonzo Church](/assets/images/Alonzo_Church.jpg)
+> Discovered/Introduced in 1930 Lambda Calculus as a formal system for expressing computations based on function abstractions and function applications.
+
+
+-----
+# Lambda Calculus (a.k.a. Untyped Lambda Calculus)
+
+* Lambda Terms - Only 3 elements
+
+$ Set \Lambda of all \lambda-terms$
+$ (Variable) | u \in V \implies u \in \Lambda$
+$ (Application) | M \land N \in \Lambda \implies (MN) \in \Lambda$
+$ (Abstraction) | u \in V \land M \in \Lambda \implies \(\lambda u.M\) \in \Lambda$
+
+-----
+# $\(\lambda u.M\)$ Examples
+
+* Booleans = True | False
+  * $ \lambda xy.x \cong TRUE$
+  * $ \lambda xy.y \cong FALSE$ 
+* Natural Numbers
+  * $ 0 \cong \lambda fx.x$
+  * $ 1 \cong \lambda fx.fx$
+  * $ 2 \cong \lambda fx.f\(fx\)$
+  * $ 3 \cong \lambda fx.f\(f\(fx\)\)$
+  * and so on.....
+-----
+# Agenda
+
+* A brief of History
+* **Functional Programming**
+* Data structures: Datatypes, Types, Typeclasses and more
+* for comprehension? Is there a conspiracy?
+* From imperative to FP ~ Super λ
+* Extras: Category Theory
+
+-----
+# Functional Programming
+* Paradigm that relies on functions modeled on mathematical functions $\cong \lambda Calculus?$
+* Functions are First-class
+* Pure functions 
+  * Referential transparency: **same function, given the same values to be evaluated, will always return the same result** $\cong Math$
+* Why is RF so important?
+  * Deterministic, Composable, Testable, No Side Effects Programs
+
+-----
+# Functional Programming
+> Strong FP languages like Haskell, Scala, Agda, etc also are "*Lazy*" and Strict Typed Language.
+> Combination of all these properties build well formal defined language tooling
+
+$ \lambda Calculus + Type Theory + Lazyness \implies Super Language $
+
+-----
+# Agenda
+
+* A brief of History
+* Functional Programming
+* **Data structures: Datatypes, Types, Typeclasses and more**
+* for comprehension? Is there a conspiracy?
+* From imperative to FP ~ Super λ
+* Extras: Category Theory
+
+-----
+# Data Structures
+## Sum Types $ A + B $ Either, IO, etc
+
+    sealed abstract class Either[+A, +B]
+    final case class Left[+A, +B](a: A) extends Either[A, B]
+    final case class Right[+A, +B](b: B) extends Either[A, B] 
+
+# In Haskell 
+
+    data Either a b = Left a | Right b
+
+-----
+# Data Structures
+## Product Types $ A * B $ Any Class
+
+    case class User(address: Address, name: String, surname: String)
+    case class Billing(items: Seq[Item], user: User, ...)
+
+# Haskell ...
+
+    data User = User Address String String
+    -- Or with named records
+    data User = User { address: Address, name: String, surname: String } 
+
+-----
+# Data Structures
+## Exponential Types $ B^A $ Functions!!
+
+
+    def f: A => B = ...
+    def f(a: A): B = ...
+
+# In Haskell
+
+    f :: A -> B
+
+-----
+# Data Structures
+* All we need are 3 Types: Sum, Product and Exponentials
+* **And what about Typeclasses?**
+
+-----
+# Data Structures
+## Typeclasses
+> A set of types which have certain operations defined for them. We also called Algebras sometime in FP.
+
+-----
+# Typeclasses in Scala
+
+    trait Functor[F[_]] {
+      def map[A, B](fa: F[A])(f: A => B): F[B]
+    }
+
+    // Example implementation for Option
+    implicit val functorForOption: Functor[Option] = new Functor[Option] {
+      def map[A, B](fa: Option[A])(f: A => B): Option[B] = fa match {
+        case None    => None
+        case Some(a) => Some(f(a))
+      }
+    }
+
+-----
+# Agenda
+
+* A brief of History
+* Functional Programming
+* Data structures: Datatypes, Types, Typeclasses and more
+* **for comprehension? Is there a conspiracy?**
+* From imperative to FP ~ Super λ
+* Extras: Category Theory
+
+
+-----
+# for comprehension? Is there a conspiracy?
+> It is a syntactic sugar for the combination of flatMap, map and withFilter. Nothing else, nothing more
+
+-----
+
+    for {
+      i <- a
+      j <- b
+      k <- c
+    } yield (i + j + k)
+
+    a.flatMap { i =>
+      b.flatMap { j =>
+        c.map {
+          k => i + j + k
+        }
+      }
+    }
+
+-----
+# With Filters
+
+    for {
+      i <- a
+      j <- b
+      if i > j
+      k <- c
+    } yield (i + j + k)
+
+    a.flatMap { i =>
+      b.withFilter { j => i > j }.flatMap { j => 
+        c.map {
+          k => i + j + k
+        }
+      }
+    }
+
+-----
+# With Assignments
+
+    for {
+      i <- a
+      j <- b
+      ij = i + j
+      k <- c
+    } yield (ij + k)
+
+    a.flatMap { i =>
+      b.map { j => (j, i+j) }.flatMap { (j, ij) => 
+        c.map {
+          k => ij + k
+        }
+      }
+    }
+
+-----
+# Agenda
+
+* A brief of History
+* Functional Programming
+* Data structures: Datatypes, Types, Typeclasses and more
+* for comprehension? Is there a conspiracy?
+* **From imperative to FP ~ Super λ**
+* Extras: Category Theory
+
+-----
+# From imperative to FP ~ Super $ \lambda $  
+
+## Coding Time!! ![Coding time](https://media.giphy.com/media/zOvBKUUEERdNm/giphy.gif)
+
+
+-----
+# Agenda
+
+* A brief of History
+* Functional Programming
+* Data structures: Datatypes, Types, Typeclasses and more
+* for comprehension? Is there a conspiracy?
+* From imperative to FP ~ Super λ
+* **Extras: Category Theory**
+
+-----
+# Extras: Category Theory
+* Functor
+* Monoid
+* Applicative
+* Monad
+
+
+</div>
+
+<script type="text/javascript">
+var enableBwCss = function(){
+    disableDevopsCss();
+    disableEffectsCss();
+};
+var enableDevopsCss = function(){
+    document.body.classList.add("devopsy");
+    disableEffectsCss();
+};
+var disableDevopsCss = function(){
+    document.body.classList.remove("devopsy");
+};
+var enableEffectsCss = function(){
+    document.body.classList.add("effects");
+    disableDevopsCss();
+};
+var disableEffectsCss = function(){
+    document.body.classList.remove("effects");
+};
+</script>
+
+
+<div id="impress-toolbar"></div>
+<div id="impress-help"></div>
+
+
+<!-- Extra modules
+     Load highlight.js, mermaid.js and markdown.js from extras.
+     See also src/plugins/extras/extras.js -->
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript" src="../js/mermaid.min.js"></script>
+<script type="text/javascript" src="../js/markdown.js"></script>
+<script type="text/x-mathjax-config">
+ MathJax.Hub.Config({
+     tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+ });
+</script>
+<script type="text/javascript" src="../js/MathJax.js?config=TeX-AMS_CHTML"></script>
+<script type="text/javascript" src="../js/impress.js"></script>
+<!--
+    To make all described above really work, you need to include impress.js in the page.
+    You also need to call a `impress().init()` function to initialize impress.js presentation.
+    And you should do it in the end of your document. 
+-->
+<script>impress().init();</script>
+</body>
+</html>

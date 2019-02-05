@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"
+    xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <channel>
+        <title>Latest Posts in jproyo.github.io</title>
+        <link>https://jproyo.github.io</link>
+        <description><![CDATA[Latest blog posts]]></description>
+        <atom:link href="https://jproyo.github.io/rss/posts.rss" rel="self"
+                   type="application/rss+xml" />
+        <lastBuildDate>Sat, 02 Feb 2019 00:00:00 UT</lastBuildDate>
+        <item>
+    <title>A Journey from Lambda Calculus to FP in Scala</title>
+    <link>https://jproyo.github.io/posts/journey-from-lambda-to-scala-fp.html</link>
+    <description><![CDATA[Slides where i talk about Functional Programming principles from Lambda Calculus Theory and how this is done with Scala]]></description>
+    <pubDate>Sat, 02 Feb 2019 00:00:00 UT</pubDate>
+    <guid>https://jproyo.github.io/posts/journey-from-lambda-to-scala-fp.html</guid>
+    <dc:creator>Juan Pablo Royo Sales</dc:creator>
+</item>
+
+    </channel>
+</rss>
