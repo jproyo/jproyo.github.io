@@ -22,7 +22,7 @@
     <p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
 </div>
 
-<div id="impress" data-transition-duration="700">
+<div id="impress" data-transition-duration="0">
 
 <div class="step slide" data-rel-x="1800" data-rel-y="0">
 
@@ -33,8 +33,21 @@
 </div>
 </div>
 
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
+<h2>
+  <p>
+    When a Mathematical Reasoning can be had
+    it’s as great a folly to make use of any other, as
+    to grope for a thing in the dark, when you have
+    a Candle standing by you.
+  </p>
+  <p><i>John Arbuthnot</i><br/>
+  <i>Of the Laws of Chance, 1692</i></p>
+</h2>
+</div>
 
-<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="50">
+
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
 
 <h1>Agenda</h1>
 <ul>
@@ -48,7 +61,7 @@
 
 </div>
 
-<div class="step slide" data-rel-x="1700" data-rel-y="100">
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
 
 <h1>Agenda</h1>
 <ul>
@@ -62,7 +75,7 @@
 
 </div>
 
-<div class="step slide" data-rel-x="1600" data-rel-y="100" data-rotate="50">
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
 
 <h1>Computability Theory</h1>
 <blockquote>
@@ -73,7 +86,7 @@
 </blockquote>
 </div>
 
-<div class="step slide markdown" data-rel-x="1700" data-rel-y="100">
+<div class="step slide markdown" data-rel-x="1800" data-rel-y="0">
 
 # Computability Theory
 
@@ -81,23 +94,56 @@
 
 </div>
 
-<div class="step slide markdown" data-rel-x="1700" data-rel-y="200" data-rotate="-50">
+<div class="step slide markdown" data-rel-x="1800" data-rel-y="0">
 # Computability Theory
 
 ![Alonzo Church](/assets/images/Alonzo_Church.jpg) Discovered/Introduced in 1930 **Lambda Calculus** as a formal system for expressing computations based on function abstractions and function applications.
 
 </div>
-<div class="step slide markdown" data-rel-x="1700" data-rel-y="200" data-rotate="50">
+<div class="step slide markdown" data-rel-x="1800" data-rel-y="0">
 # Lambda Calculus (a.k.a. Untyped Lambda Calculus)
 
-* Lambda Terms - Only 3 elements
+## Lambda Terms - Only 3 elements
+## $ Set \Lambda of all \lambda-terms $
 
-$ Set \Lambda of all \lambda-terms$
-$ (Variable) | u \in V \implies u \in \Lambda$
-$ (Application) | M \land N \in \Lambda \implies (MN) \in \Lambda$
-$ (Abstraction) | u \in V \land M \in \Lambda \implies \(\lambda u.M\) \in \Lambda$
 </div>
-<div class="step slide markdown" data-rel-x="1700" data-rel-y="200">
+<div class="step slide markdown" data-rel-x="1800" data-rel-y="0">
+# Lambda Calculus (a.k.a. Untyped Lambda Calculus)
+
+## Lambda Terms - Only 3 elements
+## $ Set \Lambda of all \lambda-terms $
+
+* $ (Variable) \mapsto u \in V \implies u \in \Lambda$
+
+</div>
+<div class="step slide markdown" data-rel-x="1800" data-rel-y="0">
+# Lambda Calculus (a.k.a. Untyped Lambda Calculus)
+
+## Lambda Terms - Only 3 elements
+## $ Set \Lambda of all \lambda-terms $
+
+* $ (Variable) \mapsto u \in V \implies u \in \Lambda$
+* $ (Application) \mapsto M \land N \in \Lambda \implies (MN) \in \Lambda$
+
+</div>
+<div class="step slide markdown" data-rel-x="1800" data-rel-y="0">
+# Lambda Calculus (a.k.a. Untyped Lambda Calculus)
+
+## Lambda Terms - Only 3 elements
+## $ Set \Lambda of all \lambda-terms $
+
+* $ (Variable) \mapsto u \in V \implies u \in \Lambda $
+* $ (Application) \mapsto M \land N \in \Lambda \implies (MN) \in \Lambda $
+* $ (Abstraction) \mapsto u \in V \land M \in \Lambda \implies \(\lambda u.M\) \in \Lambda $
+</div>
+<div class="step slide markdown" data-rel-x="1800" data-rel-y="0">
+# $\(\lambda u.M\)$ Examples
+
+* Booleans = True | False
+  * $ \lambda xy.x \cong TRUE$
+  * $ \lambda xy.y \cong FALSE$
+</div>
+<div class="step slide markdown" data-rel-x="1800" data-rel-y="0">
 # $\(\lambda u.M\)$ Examples
 
 * Booleans = True | False
@@ -111,7 +157,7 @@ $ (Abstraction) | u \in V \land M \in \Lambda \implies \(\lambda u.M\) \in \Lamb
   * and so on.....
 </div>
 
-<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="50">
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
 
 <h1>Agenda</h1>
 <ul>
@@ -125,7 +171,37 @@ $ (Abstraction) | u \in V \land M \in \Lambda \implies \(\lambda u.M\) \in \Lamb
 
 </div>
 
-<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="-50">
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
+
+<h1>Functional Programming</h1>
+<ul>
+  <li>Paradigm that relies on functions modeled on <b>mathematical functions $\cong \lambda Calculus?$</b></li>
+</ul>
+</div>
+
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
+
+<h1>Functional Programming</h1>
+<ul>
+  <li>Paradigm that relies on functions modeled on <b>mathematical functions $\cong \lambda Calculus?$</b></li>
+  <li>Functions are <b>First-class</b></li>
+</ul>
+</div>
+
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
+
+<h1>Functional Programming</h1>
+<ul>
+  <li>Paradigm that relies on functions modeled on <b>mathematical functions $\cong \lambda Calculus?$</b></li>
+  <li>Functions are <b>First-class</b></li>
+  <li>Pure functions
+    <ul>
+      <li>Referential transparency: <b>same function</b>, given the <b>same values</b> to be evaluated, will always return the <b>same result</b> $\cong Math$</li>
+    </ul>
+  </li>
+</ul>
+</div>
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
 
 <h1>Functional Programming</h1>
 <ul>
@@ -142,10 +218,9 @@ $ (Abstraction) | u \in V \land M \in \Lambda \implies \(\lambda u.M\) \in \Lamb
     </ul>
   </li>
 </ul>
-
 </div>
 
-<div class="step slide markdown" data-rel-x="1700" data-rel-y="200" data-rotate="50">
+<div class="step slide markdown" data-rel-x="1800" data-rel-y="0">
 # Functional Programming
 > Well defined FP languages like Haskell, Scala, Agda, etc also are **Lazy** and Strict Typed Language.
 > Combination of all these properties build well formal defined language tooling
@@ -153,7 +228,7 @@ $ (Abstraction) | u \in V \land M \in \Lambda \implies \(\lambda u.M\) \in \Lamb
 $ \lambda Calculus \land Type Theory \land Lazyness \implies Super Language $
 </div>
 
-<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="-50">
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
 
 <h1>Agenda</h1>
 <ul>
@@ -167,7 +242,18 @@ $ \lambda Calculus \land Type Theory \land Lazyness \implies Super Language $
 
 </div>
 
-<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="50">
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
+<h1>Data Structures</h1>
+<h2>Sum Types $ A + B $ Either, IO, etc</h2>
+<pre>
+  <code class="scala htl">
+    sealed abstract class Either[+A, +B]
+    final case class Left[+A, +B](a: A) extends Either[A, B]
+    final case class Right[+A, +B](b: B) extends Either[A, B]
+  </code>
+</pre>
+</div>
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
 <h1>Data Structures</h1>
 <h2>Sum Types $ A + B $ Either, IO, etc</h2>
 <pre>
@@ -185,7 +271,17 @@ $ \lambda Calculus \land Type Theory \land Lazyness \implies Super Language $
   </pre>
 </div>
 
-<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="-50">
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
+<h1>Data Structures</h1>
+<h2>Product Types $ A * B $ Any Class</h2>
+<pre>
+  <code class="scala htl">
+    case class User(address: Address, name: String, surname: String)
+    case class Billing(items: Seq[Item], user: User, ...)
+  </code>
+</pre>
+</div>
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
 <h1>Data Structures</h1>
 <h2>Product Types $ A * B $ Any Class</h2>
 <pre>
@@ -204,7 +300,17 @@ $ \lambda Calculus \land Type Theory \land Lazyness \implies Super Language $
   </pre>
 </div>
 
-<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="-50">
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
+<h1>Data Structures</h1>
+<h2>Exponential Types $ B^A \cong Functions $</h2>
+<pre>
+  <code class="scala htl">
+    def f: A => B = ...
+    def f(a: A): B = ...
+  </code>
+</pre>
+</div>
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
 <h1>Data Structures</h1>
 <h2>Exponential Types $ B^A \cong Functions $</h2>
 <pre>
@@ -221,16 +327,59 @@ $ \lambda Calculus \land Type Theory \land Lazyness \implies Super Language $
   </pre>
 </div>
 
-<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="50">
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
 <h1>Data Structures</h1>
 <ul>
   <li>All we need are 3 Types: Sum, Product and Exponentials</li>
-  <li>Because of this are also known as ADT - **Algebraic Data Types**</li>
+</ul>
+</div>
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
+<h1>Data Structures</h1>
+<ul>
+  <li>All we need are 3 Types: Sum, Product and Exponentials</li>
+  <li>Because of this are also known as ADT - <strong>Algebraic Data Types</strong></li>
+</ul>
+</div>
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
+<h1>Data Structures</h1>
+<ul>
+  <li>All we need are 3 Types: Sum, Product and Exponentials</li>
+  <li>Because of this are also known as ADT - <strong>Algebraic Data Types</strong></li>
 </ul>
 <h2>High School</h2>
 <ul>
   <li>$ (A*B)^C = A^C * B^C $</li>
 </ul>
+</div>
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
+<h1>Data Structures</h1>
+<ul>
+  <li>All we need are 3 Types: Sum, Product and Exponentials</li>
+  <li>Because of this are also known as ADT - <strong>Algebraic Data Types</strong></li>
+</ul>
+<h2>Curry-Howard Isomorphism/Correspondence</h2>
+<ul>
+  <li>$ (A*B)^C = A^C * B^C $</li>
+</ul>
+</div>
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
+<h1>Data Structures</h1>
+<ul>
+  <li>All we need are 3 Types: Sum, Product and Exponentials</li>
+  <li>Because of this are also known as ADT - <strong>Algebraic Data Types</strong></li>
+</ul>
+<h2>Curry-Howard Isomorphism/Correspondence</h2>
+<ul>
+  <li>$ (A*B)^C = A^C * B^C \mapsto c \to (a,b) \cong (c \to a, c \to b) $</li>
+</ul>
+</div>
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
+<h1>Data Structures</h1>
+<ul>
+  <li>All we need are 3 Types: Sum, Product and Exponentials</li>
+  <li>Because of this are also known as ADT - <strong>Algebraic Data Types</strong></li>
+</ul>
+<h2>Scala Code</h2>
 <pre>
   <code class="scala htl">
     case class Product[+A, +B](a: A, b: B)
@@ -245,7 +394,7 @@ $ \lambda Calculus \land Type Theory \land Lazyness \implies Super Language $
 </pre>
 </div>
 
-<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="50">
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
 <h1>Other Isomorphisms</h1>
 <ul>
   <li>$ C^{A*B} = C^A * C^B $</li>
@@ -254,13 +403,13 @@ $ \lambda Calculus \land Type Theory \land Lazyness \implies Super Language $
 <h2>And what about Typeclasses?</h2>
 </div>
 
-<div class="step slide markdown" data-rel-x="1700" data-rel-y="100" data-rotate="-50">
+<div class="step slide markdown" data-rel-x="1800" data-rel-y="0">
 # Data Structures
 ## Typeclasses
 > A set of types which have certain operations defined for them. We also called Algebras sometime in FP.
 </div>
 
-<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="50">
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
 <h1>Typeclasses in Scala</h1>
 <pre>
   <code class="scala htl">
@@ -278,7 +427,7 @@ $ \lambda Calculus \land Type Theory \land Lazyness \implies Super Language $
   </code>
 </pre>
 </div>
-<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="50">
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
 <h1>and in Haskell</h1>
 <pre>
   <code class="haskell htl">
@@ -292,7 +441,7 @@ $ \lambda Calculus \land Type Theory \land Lazyness \implies Super Language $
   </pre>
 </div>
 
-<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="-50">
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
 
 <h1>Agenda</h1>
 <ul>
@@ -306,7 +455,7 @@ $ \lambda Calculus \land Type Theory \land Lazyness \implies Super Language $
 
 </div>
 
-<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="50">
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
 <h1>for comprehension? Is there a conspiracy?</h1>
 <ul><li>It is a <b>syntactic sugar</b> for the combination of flatMap, map and withFilter. Nothing else, nothing more</li></ul>
 <pre>
@@ -328,7 +477,7 @@ $ \lambda Calculus \land Type Theory \land Lazyness \implies Super Language $
 </pre>
 </div>
 
-<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="-50">
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
 <h1>With Filters</h1>
 <pre>
   <code class="scala htl">
@@ -349,7 +498,7 @@ $ \lambda Calculus \land Type Theory \land Lazyness \implies Super Language $
   </code>
 </pre>
 </div>
-<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="50">
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
 <h1>With Assignments</h1>
 <pre>
   <code class="scala htl">
@@ -370,7 +519,7 @@ $ \lambda Calculus \land Type Theory \land Lazyness \implies Super Language $
   </code>
 </pre>
 </div>
-<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="-50">
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
 
 <h1>Agenda</h1>
 <ul>
@@ -384,7 +533,7 @@ $ \lambda Calculus \land Type Theory \land Lazyness \implies Super Language $
 
 </div>
 
-<div class="step slide markdown" data-rel-x="1700" data-rel-y="100" data-rotate="50">
+<div class="step slide markdown" data-rel-x="1800" data-rel-y="0">
 
 # From imperative to FP $ \lambda $
 
@@ -392,7 +541,7 @@ $ \lambda Calculus \land Type Theory \land Lazyness \implies Super Language $
 
 </div>
 
-<div class="step slide" data-rel-x="1700" data-rel-y="100" data-rotate="-50">
+<div class="step slide" data-rel-x="1800" data-rel-y="0">
 
 <h1>Agenda</h1>
 <ul>
@@ -405,7 +554,7 @@ $ \lambda Calculus \land Type Theory \land Lazyness \implies Super Language $
 </ul>
 
 </div>
-<div class="step slide markdown" data-rel-x="1700" data-rel-y="100" data-rotate="50">
+<div class="step slide markdown" data-rel-x="1800" data-rel-y="0">
 # Extras: Category Theory and other FP techniques
 * Functor
 * Monoid
