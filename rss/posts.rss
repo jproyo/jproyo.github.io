@@ -9,7 +9,7 @@
                    type="application/rss+xml" />
         <lastBuildDate>Thu, 07 Feb 2019 00:00:00 UT</lastBuildDate>
         <item>
-    <title>Practical Tagless Final approach in Scala</title>
+    <title>Tagless Final in Scala: Real world example</title>
     <link>https://jproyo.github.io/posts/2019-02-07-practical-tagless-final-in-scala.html</link>
     <description><![CDATA[This is a practical guide with real world example for beginners who want to understand better Tagless Final approach in Scala.]]></description>
     <pubDate>Thu, 07 Feb 2019 00:00:00 UT</pubDate>
@@ -17,9 +17,9 @@
     <dc:creator>Juan Pablo Royo Sales</dc:creator>
 </item>
 <item>
-    <title>A Journey from Lambda Calculus to FP in Scala</title>
+    <title>A journey from Lambda Calculus to Functional Programming</title>
     <link>https://jproyo.github.io/posts/2019-02-02-journey-from-lambda-to-scala-fp.html</link>
-    <description><![CDATA[Slides where i talk about Functional Programming principles from Lambda Calculus Theory and how this is done with Scala]]></description>
+    <description><![CDATA[Slides where i talk about Functional Programming principles from Lambda Calculus Theory]]></description>
     <pubDate>Sat, 02 Feb 2019 00:00:00 UT</pubDate>
     <guid>https://jproyo.github.io/posts/2019-02-02-journey-from-lambda-to-scala-fp.html</guid>
     <dc:creator>Juan Pablo Royo Sales</dc:creator>

@@ -9,9 +9,10 @@
     <meta name="twitter:card" content="summary">
     <meta name="twitter:description" content="This is a practical guide with real world example for beginners who want to understand better Tagless Final approach in Scala.">
     <meta property="og:locale" content="es_US">
-    <meta property="og:title" content="Practical Tagless Final approach in Scala">
+    <meta property="og:title" content="Tagless Final in Scala: Real world example">
     <meta property="og:description" content="This is a practical guide with real world example for beginners who want to understand better Tagless Final approach in Scala.">
-    <title>Practical Tagless Final approach in Scala</title>
+    <title>Tagless Final in Scala: Real world example</title>
+    <link rel="stylesheet" href="../css/font-faces.css" />
     <link rel="stylesheet" href="../css/post-bundle.css" />
   </head>
   <body>
@@ -30,12 +31,318 @@
      </nav>
     </header>
 
-    <h1 class="post-title">Practical Tagless Final approach in Scala</h1>
+    <h1 class="post-title">Tagless Final in Scala: Real world example</h1>
     <div class="date"><span>February  7, 2019</span></div>
     <article>
       <section>
-        <h1 id="a-little-of-context">A little of Context</h1>
-<p>TO BE COMPLETED</p>
+        <p>UNDER CONSTRUCTION!!!</p>
+<h2 id="source-code">Source Code</h2>
+<p>To get a complete version of the code presented here, this is the <a href="https://github.com/jproyo/imperative-to-fp">Github Repo</a></p>
+<h2 id="disclaimer">Disclaimer</h2>
+<p>All the techniques and code that is going to be shown here are completely agnostic of any 3rd party library. We are <strong>not going</strong> to use any <strong>Scala FP</strong> library such as <strong><a href="https://typelevel.org/cats/">cats</a>, <a href="https://scalaz.github.io/7/">scalaz</a> or any other</strong>. Obviously using any of those libraries could do these techniques easier to implement, but the goal here is to shown how we can implement <strong>Tagless Final Encoding</strong> without needing any library.</p>
+<h2 id="introduction">Introduction</h2>
+<p>This is my first blog post about Scala and i would like to describe a well known topic for the whole <strong>Scala FP</strong> community which is <strong>Tagless Final Encoding</strong>. There are so many sites, code examples and blog post about the subject but since there is always room to understand the technique from other perspective, I decided to take the chance and maybe help others to understand it from a more practical point of view.</p>
+<p>I am going to deep dive in the technique from a very real use case example and in the middle i will interchange with more theoretical concepts. This journey is going to start from a <strong>imperative approach</strong> until we get to a <strong>Tagless Final FP approach</strong>. So, fasten your seat belts and lets enjoy the ride!!!</p>
+<blockquote>
+<p><strong>Important Note:</strong> We are not going to use any external library such as cats, scalaz or any other FP library of Scala ecosystem here. The idea of this blog post is to show how to develop this technique in most pure form. Obviously using some of the FP Scala ecosystem library the work is easier and clean.</p>
+</blockquote>
+<h2 id="problem-example">Problem example</h2>
+<p>I’ve created an example problem to be solved based on some things of my personal work, so everything in the example could be real production code. This is obviously a minimalist version of the problem.</p>
+<p>We are going to describe a <strong>Recommender Program</strong> that given an <strong>algorithm</strong> and a <strong>user</strong> is going to generate recommendations for that <strong>user</strong> based on the selected <strong>algorithm</strong>.</p>
+<p>We have the following requirements defined in terms of <strong>User Stories</strong>:</p>
+<ul>
+<li><p><em>As an user i want to get recommendations from an specific algorithm, but if there are no recommendations for this algorithm or i forgot to specify what algorithm should be use i would like to have default recommendations from the best algorithm the system has.</em></p></li>
+<li><p><em>As an user i want to get a message if recommendation’s algorithm i requested is wrong.</em></p></li>
+<li><p><em>As an user i want to be able to be retrieve with a limited number of recommendations.</em></p></li>
+</ul>
+<h2 id="imperative-approach">Imperative approach</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode scala htl"><code class="sourceCode scala"><a class="sourceLine" id="cb1-1" title="1"></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="kw">import</span> DataSource._</a>
+<a class="sourceLine" id="cb1-3" title="3"></a>
+<a class="sourceLine" id="cb1-4" title="4">  <span class="kw">def</span> <span class="fu">getUser</span>(userId: Option[Int]): Option[Int] =</a>
+<a class="sourceLine" id="cb1-5" title="5">    userId.<span class="fu">filter</span>(user =&gt; users.<span class="fu">exists</span>(_.<span class="fu">userId</span> == user))</a>
+<a class="sourceLine" id="cb1-6" title="6">  </a>
+<a class="sourceLine" id="cb1-7" title="7">  <span class="kw">def</span> <span class="fu">getAlgorithm</span>(recommenderId: Option[String]): Option[Algorithm] =</a>
+<a class="sourceLine" id="cb1-8" title="8">    recommenderId.<span class="fu">orElse</span>(algoDefault).<span class="fu">flatMap</span>(algorithms.<span class="fu">get</span>(_))</a>
+<a class="sourceLine" id="cb1-9" title="9">  </a>
+<a class="sourceLine" id="cb1-10" title="10">  </a>
+<a class="sourceLine" id="cb1-11" title="11">  <span class="kw">def</span> <span class="fu">program</span>(userId: Option[Int],</a>
+<a class="sourceLine" id="cb1-12" title="12">                recommenderId: Option[String] = None,</a>
+<a class="sourceLine" id="cb1-13" title="13">                limit: Option[Int] = None): Unit = {</a>
+<a class="sourceLine" id="cb1-14" title="14">  </a>
+<a class="sourceLine" id="cb1-15" title="15">  </a>
+<a class="sourceLine" id="cb1-16" title="16">      <span class="kw">val</span> user = <span class="fu">getUser</span>(userId)</a>
+<a class="sourceLine" id="cb1-17" title="17">  </a>
+<a class="sourceLine" id="cb1-18" title="18">      <span class="kw">val</span> algorithm = <span class="fu">getAlgorithm</span>(recommenderId)</a>
+<a class="sourceLine" id="cb1-19" title="19">  </a>
+<a class="sourceLine" id="cb1-20" title="20">      <span class="kw">val</span> result = algorithm.<span class="fu">flatMap</span>(_.<span class="fu">run</span>(<span class="fu">UserId</span>(user.<span class="fu">get</span>))).<span class="fu">orElse</span>(Some(<span class="fu">emptyRecs</span>(user.<span class="fu">get</span>)))</a>
+<a class="sourceLine" id="cb1-21" title="21">  </a>
+<a class="sourceLine" id="cb1-22" title="22">      <span class="kw">val</span> limitFilter = limit.<span class="fu">getOrElse</span>(limitDefault)</a>
+<a class="sourceLine" id="cb1-23" title="23">  </a>
+<a class="sourceLine" id="cb1-24" title="24">      <span class="kw">val</span> resultFiltered = result.<span class="fu">map</span>(_.<span class="fu">copy</span>(recs = recs.<span class="fu">slice</span>(<span class="dv">0</span>, limitFilter).<span class="fu">toList</span>))</a>
+<a class="sourceLine" id="cb1-25" title="25">  </a>
+<a class="sourceLine" id="cb1-26" title="26">      resultFiltered <span class="kw">match</span> {</a>
+<a class="sourceLine" id="cb1-27" title="27">        <span class="kw">case</span> Some(recs) =&gt; {</a>
+<a class="sourceLine" id="cb1-28" title="28">          <span class="fu">println</span>(s<span class="st">&quot;</span><span class="ch">\n</span><span class="st">Recommnedations for userId ${recs.userId}...&quot;</span>)</a>
+<a class="sourceLine" id="cb1-29" title="29">          <span class="fu">println</span>(s<span class="st">&quot;Algorithm ${algorithm.get.name}&quot;</span>)</a>
+<a class="sourceLine" id="cb1-30" title="30">          <span class="fu">println</span>(s<span class="st">&quot;Recs: ${recs.recs}&quot;</span>)</a>
+<a class="sourceLine" id="cb1-31" title="31">        }</a>
+<a class="sourceLine" id="cb1-32" title="32">        <span class="kw">case</span> None =&gt; <span class="fu">println</span>(s<span class="st">&quot;No recommendations found for userId $userId&quot;</span>)</a>
+<a class="sourceLine" id="cb1-33" title="33">      }</a>
+<a class="sourceLine" id="cb1-34" title="34">  </a>
+<a class="sourceLine" id="cb1-35" title="35">  }</a>
+<a class="sourceLine" id="cb1-36" title="36">  </a></code></pre></div>
+<p>Although this is a better approach for an imperative code we can take the advantage of <em>for-comprehension</em> syntax sugar since we are manipulating <code>Option</code> types.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode scala htl"><code class="sourceCode scala"><a class="sourceLine" id="cb2-1" title="1">  </a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="kw">def</span> <span class="fu">program</span>(userId: Option[Int],</a>
+<a class="sourceLine" id="cb2-3" title="3">              recommenderId: Option[String] = None,</a>
+<a class="sourceLine" id="cb2-4" title="4">              limit: Option[Int] = None): Unit = {</a>
+<a class="sourceLine" id="cb2-5" title="5"></a>
+<a class="sourceLine" id="cb2-6" title="6">    <span class="kw">val</span> result = <span class="kw">for</span> {</a>
+<a class="sourceLine" id="cb2-7" title="7">      user           &lt;- <span class="fu">getUser</span>(userId)</a>
+<a class="sourceLine" id="cb2-8" title="8">      algorithm      &lt;- <span class="fu">getAlgorithm</span>(recommenderId)</a>
+<a class="sourceLine" id="cb2-9" title="9">      result         &lt;- algorithm.<span class="fu">run</span>(<span class="fu">UserId</span>(user))</a>
+<a class="sourceLine" id="cb2-10" title="10">      limitFilter     = limit.<span class="fu">getOrElse</span>(limitDefault)</a>
+<a class="sourceLine" id="cb2-11" title="11">      resultFiltered  = result.<span class="fu">copy</span>(recs = recs.<span class="fu">slice</span>(<span class="dv">0</span>, limitFilter).<span class="fu">toList</span>)</a>
+<a class="sourceLine" id="cb2-12" title="12">    } <span class="kw">yield</span> Result(algorithm, resultFiltered)</a>
+<a class="sourceLine" id="cb2-13" title="13"></a>
+<a class="sourceLine" id="cb2-14" title="14">    result <span class="kw">match</span> {</a>
+<a class="sourceLine" id="cb2-15" title="15">      <span class="kw">case</span> Some(algoRes) =&gt; {</a>
+<a class="sourceLine" id="cb2-16" title="16">        <span class="fu">println</span>(s<span class="st">&quot;</span><span class="ch">\n</span><span class="st">Recommnedations for userId ${algoRes.recs.userId}...&quot;</span>)</a>
+<a class="sourceLine" id="cb2-17" title="17">        <span class="fu">println</span>(s<span class="st">&quot;Algorithm ${algoRes.algorithm.name}&quot;</span>)</a>
+<a class="sourceLine" id="cb2-18" title="18">        <span class="fu">println</span>(s<span class="st">&quot;Recs: ${algoRes.recs.recs}&quot;</span>)</a>
+<a class="sourceLine" id="cb2-19" title="19">      }</a>
+<a class="sourceLine" id="cb2-20" title="20">      <span class="kw">case</span> None =&gt; <span class="fu">println</span>(s<span class="st">&quot;No recommendations found for userId $userId&quot;</span>)</a>
+<a class="sourceLine" id="cb2-21" title="21">    }</a>
+<a class="sourceLine" id="cb2-22" title="22"></a>
+<a class="sourceLine" id="cb2-23" title="23">  }</a>
+<a class="sourceLine" id="cb2-24" title="24">  </a></code></pre></div>
+<p>We can even go further and separate our program in 2 functions: for-comprehension where the result is gather and print result to the user.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode scala htl"><code class="sourceCode scala"><a class="sourceLine" id="cb3-1" title="1"></a>
+<a class="sourceLine" id="cb3-2" title="2">  <span class="kw">def</span> <span class="fu">getRecommendations</span>(userId: Option[Int], </a>
+<a class="sourceLine" id="cb3-3" title="3">                         recommenderId: Option[String], </a>
+<a class="sourceLine" id="cb3-4" title="4">                         limit: Option[Int]): Option[Result] = {</a>
+<a class="sourceLine" id="cb3-5" title="5">    <span class="kw">val</span> result = <span class="kw">for</span> {</a>
+<a class="sourceLine" id="cb3-6" title="6">      user           &lt;- <span class="fu">getUser</span>(userId)</a>
+<a class="sourceLine" id="cb3-7" title="7">      algorithm      &lt;- <span class="fu">getAlgorithm</span>(recommenderId)</a>
+<a class="sourceLine" id="cb3-8" title="8">      result         &lt;- <span class="fu">executeAlgorithm</span>(user, algorithm)</a>
+<a class="sourceLine" id="cb3-9" title="9">      limitFilter     = limit.<span class="fu">getOrElse</span>(limitDefault)</a>
+<a class="sourceLine" id="cb3-10" title="10">      resultFiltered &lt;- <span class="fu">filterResults</span>(result, limitFilter)</a>
+<a class="sourceLine" id="cb3-11" title="11">    } <span class="kw">yield</span> Result(algorithm, resultFiltered)</a>
+<a class="sourceLine" id="cb3-12" title="12">    result</a>
+<a class="sourceLine" id="cb3-13" title="13">  }</a>
+<a class="sourceLine" id="cb3-14" title="14"></a>
+<a class="sourceLine" id="cb3-15" title="15"></a>
+<a class="sourceLine" id="cb3-16" title="16">  <span class="kw">def</span> <span class="fu">printResults</span>(userId: Option[Int], result: Option[Result]): Unit = {</a>
+<a class="sourceLine" id="cb3-17" title="17">    result.<span class="fu">fold</span>(<span class="fu">println</span>(s<span class="st">&quot;No recommendations found for userId $userId&quot;</span>))(algoRes =&gt; {</a>
+<a class="sourceLine" id="cb3-18" title="18">      <span class="fu">println</span>(s<span class="st">&quot;</span><span class="ch">\n</span><span class="st">Recommnedations for userId ${algoRes.recs.userId}...&quot;</span>)</a>
+<a class="sourceLine" id="cb3-19" title="19">      <span class="fu">println</span>(s<span class="st">&quot;Algorithm ${algoRes.algorithm.name}&quot;</span>)</a>
+<a class="sourceLine" id="cb3-20" title="20">      <span class="fu">println</span>(s<span class="st">&quot;Recs: ${algoRes.recs.recs}&quot;</span>)</a>
+<a class="sourceLine" id="cb3-21" title="21">    })</a>
+<a class="sourceLine" id="cb3-22" title="22">  }</a>
+<a class="sourceLine" id="cb3-23" title="23"></a>
+<a class="sourceLine" id="cb3-24" title="24">  <span class="kw">private</span> <span class="kw">def</span> <span class="fu">getUser</span>(userId: Option[Int]): Option[UserId] =</a>
+<a class="sourceLine" id="cb3-25" title="25">  userId.<span class="fu">filter</span>(user =&gt; users.<span class="fu">exists</span>(_.<span class="fu">userId</span> == user)).<span class="fu">map</span>(UserId)</a>
+<a class="sourceLine" id="cb3-26" title="26"></a>
+<a class="sourceLine" id="cb3-27" title="27">  <span class="kw">private</span> <span class="kw">def</span> <span class="fu">getAlgorithm</span>(recommenderId: Option[String]): Option[Algorithm] =</a>
+<a class="sourceLine" id="cb3-28" title="28">  recommenderId.<span class="fu">orElse</span>(algoDefault).<span class="fu">flatMap</span>(algorithms.<span class="fu">get</span>(_))</a>
+<a class="sourceLine" id="cb3-29" title="29"></a>
+<a class="sourceLine" id="cb3-30" title="30">  <span class="kw">private</span> <span class="kw">def</span> <span class="fu">executeAlgorithm</span>(user: UserId, algorithm: Algorithm): Option[UserRec] =</a>
+<a class="sourceLine" id="cb3-31" title="31">    algorithm.<span class="fu">run</span>(user)</a>
+<a class="sourceLine" id="cb3-32" title="32"></a>
+<a class="sourceLine" id="cb3-33" title="33">  <span class="kw">private</span> <span class="kw">def</span> <span class="fu">filterResults</span>(result: UserRec, limitFilter: Int): Option[UserRec] =</a>
+<a class="sourceLine" id="cb3-34" title="34">    Some(result.<span class="fu">copy</span>(recs = recs.<span class="fu">slice</span>(<span class="dv">0</span>, limitFilter).<span class="fu">toList</span>))</a></code></pre></div>
+<p>Now we are done with our imperative code style and we can say it is in a good shape.</p>
+<p>But we don’t like imperative style, we love doing <strong>Functional Programming</strong> and applying all the Math science we have at our disposal, don’t we? So, lets start to refactor our code with <strong>Tagless Final Encoding</strong> approach.</p>
+<h2 id="tagless-final-encoding">Tagless Final Encoding</h2>
+<p>What is exactly <strong>Tagless Final Encoding</strong>? It is a technique for embedding a <strong>DSL</strong> (Domain Specific Language) in a <strong>Type Functional Language</strong> such as Scala, Haskell, OCaml or other similar. Since we are embedding a DSL (a.k.a. Language) we are defining a <em>Language</em> in order to use it syntax and semantic <strong>(Algebra)</strong> in our program. We are going to need also an <em>interpreter</em> of the Language to indicate how it should behave on each used term <strong>(Interpreter)</strong>.</p>
+<p>Building everything together in <strong>Tagless Final</strong> style we have:</p>
+<ul>
+<li><p>Algebras: Set of operations over a Structure. In a Programming language idiom could be a set of functions that operates over some Type.</p></li>
+<li><p>Interpreter: The way of those operations behave depending the Type. In a Programming language idiom the implementation of those functions depending on the specific Type.</p></li>
+</ul>
+<h2 id="defining-our-algebras">Defining our Algebras</h2>
+<p>The first thing to do with this technique is to define our <em>Algebras</em>, our <em>operations</em> that are needing from our domain problem. If you already some program in a good imperative styles like the above it is easy to find this operations because it is already provided by the semantic of the for-comprehension. In our case we have the following operations:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode scala htl"><code class="sourceCode scala"><a class="sourceLine" id="cb4-1" title="1">  </a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="kw">def</span> <span class="fu">getUser</span>(..)</a>
+<a class="sourceLine" id="cb4-3" title="3">  </a>
+<a class="sourceLine" id="cb4-4" title="4">  <span class="kw">def</span> <span class="fu">getAlgorithm</span>(..)</a>
+<a class="sourceLine" id="cb4-5" title="5">  </a>
+<a class="sourceLine" id="cb4-6" title="6">  <span class="kw">def</span> <span class="fu">executeAlgorithm</span>(..)</a>
+<a class="sourceLine" id="cb4-7" title="7">  </a>
+<a class="sourceLine" id="cb4-8" title="8">  <span class="kw">def</span> <span class="fu">filter</span>(...)</a>
+<a class="sourceLine" id="cb4-9" title="9">  </a></code></pre></div>
+<p>If we already have our <strong>operations</strong>, the only thing left to build our Algebra is to know over what types are operating on. We can divide this in 3 groups:</p>
+<ul>
+<li>User</li>
+<li>Algorithm</li>
+<li>Filter</li>
+</ul>
+<p>Since our <em>Algebras</em> are only definition of our operations we are going to use <em>Trait</em> for defining this abstract representation.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode scala htl"><code class="sourceCode scala"><a class="sourceLine" id="cb5-1" title="1"></a>
+<a class="sourceLine" id="cb5-2" title="2">  <span class="kw">object</span> algebras {</a>
+<a class="sourceLine" id="cb5-3" title="3">  </a>
+<a class="sourceLine" id="cb5-4" title="4">    <span class="kw">import</span> DataSource._</a>
+<a class="sourceLine" id="cb5-5" title="5">    </a>
+<a class="sourceLine" id="cb5-6" title="6">    <span class="kw">trait</span> UserRepo[F[_]] {</a>
+<a class="sourceLine" id="cb5-7" title="7">      <span class="kw">def</span> <span class="fu">getUser</span>(userId: Option[Int]): F[UserId]</a>
+<a class="sourceLine" id="cb5-8" title="8">    }</a>
+<a class="sourceLine" id="cb5-9" title="9">  </a>
+<a class="sourceLine" id="cb5-10" title="10">    <span class="kw">object</span> UserRepo {</a>
+<a class="sourceLine" id="cb5-11" title="11">      <span class="kw">def</span> apply[F[_]](<span class="kw">implicit</span> UserR: UserRepo[F]): UserRepo[F] = UserR</a>
+<a class="sourceLine" id="cb5-12" title="12">    }</a>
+<a class="sourceLine" id="cb5-13" title="13">  </a>
+<a class="sourceLine" id="cb5-14" title="14">    <span class="kw">trait</span> Filter[F[_]] {</a>
+<a class="sourceLine" id="cb5-15" title="15">      <span class="kw">def</span> <span class="fu">filter</span>(userRec: UserRec, limit: Int): F[UserRec]</a>
+<a class="sourceLine" id="cb5-16" title="16">    }</a>
+<a class="sourceLine" id="cb5-17" title="17">  </a>
+<a class="sourceLine" id="cb5-18" title="18">    <span class="kw">object</span> Filter {</a>
+<a class="sourceLine" id="cb5-19" title="19">      <span class="kw">def</span> apply[F[_]](<span class="kw">implicit</span> Fil: Filter[F]): Filter[F] = Fil</a>
+<a class="sourceLine" id="cb5-20" title="20">    }</a>
+<a class="sourceLine" id="cb5-21" title="21">  </a>
+<a class="sourceLine" id="cb5-22" title="22">    <span class="kw">trait</span> AlgorithmRepo[F[_]] {</a>
+<a class="sourceLine" id="cb5-23" title="23">      <span class="kw">def</span> <span class="fu">getAlgorithm</span>(recommenderId: Option[String]): F[Algorithm]</a>
+<a class="sourceLine" id="cb5-24" title="24">      <span class="kw">def</span> <span class="fu">execute</span>(algo: Algorithm, userId: UserId): F[UserRec]</a>
+<a class="sourceLine" id="cb5-25" title="25">    }</a>
+<a class="sourceLine" id="cb5-26" title="26">  </a>
+<a class="sourceLine" id="cb5-27" title="27">    <span class="kw">object</span> AlgorithmRepo {</a>
+<a class="sourceLine" id="cb5-28" title="28">      <span class="kw">def</span> apply[F[_]](<span class="kw">implicit</span> Algo: AlgorithmRepo[F]): AlgorithmRepo[F] = Algo</a>
+<a class="sourceLine" id="cb5-29" title="29">    }</a>
+<a class="sourceLine" id="cb5-30" title="30">  </a>
+<a class="sourceLine" id="cb5-31" title="31">  }</a></code></pre></div>
+<p>Here we have a couple of things perhaps new:</p>
+<ul>
+<li><p>We are defining our Algebras in Traits. So far so good. Nothing new or fancy.</p></li>
+<li><p>We are using a <strong>Higher-Kinded Type</strong> (this is the <code>F[_]</code>) to abstract out the Container Structure that it is going to be use in each <em>Interpreter</em>. I am not going to give a detailed definition of <em>Higher-Kinded Type</em> or Type Constructor but basically it is a Type which constructs a Type based on a Type Parameter. For example <code>Option</code> is a Type constructor which takes a Type, for example <code>String</code> and constructs the final Type, for example <code>Option[String]</code>. You can probe this in a Scala console with <em>kind</em> command:</p></li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="sourceCode scala htl"><code class="sourceCode scala"><a class="sourceLine" id="cb6-1" title="1">scala&gt; :k String</a>
+<a class="sourceLine" id="cb6-2" title="2">String's kind is A</a>
+<a class="sourceLine" id="cb6-3" title="3"></a>
+<a class="sourceLine" id="cb6-4" title="4">scala&gt; :k Option</a>
+<a class="sourceLine" id="cb6-5" title="5">Option's kind is F[+A]</a>
+<a class="sourceLine" id="cb6-6" title="6"></a>
+<a class="sourceLine" id="cb6-7" title="7">scala&gt; :k Option[String]</a>
+<a class="sourceLine" id="cb6-8" title="8">Option[String]'s kind is A</a></code></pre></div>
+<ul>
+<li>A last thing we are adding here in companion objects are a technique called <strong>Summoned values</strong>, which allow us to get the implicit value using the Companion Object Trait’s constructor.</li>
+</ul>
+<p>Now that we have our Summon Values we can add some utility methods not not have to call companion objects and just calling <strong>functions</strong> from the client program:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode scala htl"><code class="sourceCode scala"><a class="sourceLine" id="cb7-1" title="1">  </a>
+<a class="sourceLine" id="cb7-2" title="2">  <span class="kw">def</span> getUser[F[_]: UserRepo](userId: Option[Int]): F[UserId] = </a>
+<a class="sourceLine" id="cb7-3" title="3">    UserRepo[F].<span class="fu">getUser</span>(userId)</a>
+<a class="sourceLine" id="cb7-4" title="4">    </a>
+<a class="sourceLine" id="cb7-5" title="5">  <span class="kw">def</span> filter[F[_]: Filter](userRec: UserRec, limit: Int): F[UserRec] = </a>
+<a class="sourceLine" id="cb7-6" title="6">    Filter[F].<span class="fu">filter</span>(userRec, limit)</a>
+<a class="sourceLine" id="cb7-7" title="7">    </a>
+<a class="sourceLine" id="cb7-8" title="8">  <span class="kw">def</span> getAlgorithm[F[_]: AlgorithmRepo](recommenderId: Option[String]): F[Algorithm] = </a>
+<a class="sourceLine" id="cb7-9" title="9">    AlgorithmRepo[F].<span class="fu">getAlgorithm</span>(recommenderId)</a>
+<a class="sourceLine" id="cb7-10" title="10">  </a>
+<a class="sourceLine" id="cb7-11" title="11">  <span class="kw">def</span> execute[F[_]: AlgorithmRepo](algo: Algorithm, userId: UserId): F[UserRec] = </a>
+<a class="sourceLine" id="cb7-12" title="12">    AlgorithmRepo[F].<span class="fu">execute</span>(algo, userId)</a></code></pre></div>
+<p>Now it is time to use our Algebras from <code>getRecommendations()</code> program. In order to do that we are going to use <a href="https://docs.scala-lang.org/tutorials/FAQ/context-bounds.html">Context Bounds</a> allowing the compiler to infer implicit values from context.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode scala htl"><code class="sourceCode scala"><a class="sourceLine" id="cb8-1" title="1"></a>
+<a class="sourceLine" id="cb8-2" title="2">  <span class="kw">def</span> getRecommendations[F[_]: UserRepo: AlgorithmRepo: Filter](userId: Option[Int],</a>
+<a class="sourceLine" id="cb8-3" title="3">                                                                recommenderId: Option[String],</a>
+<a class="sourceLine" id="cb8-4" title="4">                                                                limit: Option[Int]): Option[Result] = {</a>
+<a class="sourceLine" id="cb8-5" title="5">    <span class="kw">for</span> {</a>
+<a class="sourceLine" id="cb8-6" title="6">      user           &lt;- <span class="fu">getUser</span>(userId)</a>
+<a class="sourceLine" id="cb8-7" title="7">      algorithm      &lt;- <span class="fu">getAlgorithm</span>(recommenderId)</a>
+<a class="sourceLine" id="cb8-8" title="8">      result         &lt;- <span class="fu">execute</span>(user, algorithm)</a>
+<a class="sourceLine" id="cb8-9" title="9">      limitFilter     = limit.<span class="fu">getOrElse</span>(limitDefault)</a>
+<a class="sourceLine" id="cb8-10" title="10">      resultFiltered &lt;- <span class="fu">filter</span>(result, limitFilter)</a>
+<a class="sourceLine" id="cb8-11" title="11">    } <span class="kw">yield</span> Result(algorithm, resultFiltered)</a>
+<a class="sourceLine" id="cb8-12" title="12">  }</a></code></pre></div>
+<h2 id="interpreting-our-algebras">Interpreting our Algebras</h2>
+<p>Although it seems we have arrived to an acceptable solution we are not ready yet. We need to have at least one interpreter which is the real implementation of our Algebra. Recall that we are resting everything on <code>Option</code> for the moment, so our interpreter should be on <code>Option</code> Type.</p>
+<p>One possible interpreter could be:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode scala htl"><code class="sourceCode scala"><a class="sourceLine" id="cb9-1" title="1">  <span class="kw">object</span> interpreter {</a>
+<a class="sourceLine" id="cb9-2" title="2">  </a>
+<a class="sourceLine" id="cb9-3" title="3">    <span class="kw">import</span> DataSource._</a>
+<a class="sourceLine" id="cb9-4" title="4">    <span class="kw">import</span> algebras._</a>
+<a class="sourceLine" id="cb9-5" title="5">  </a>
+<a class="sourceLine" id="cb9-6" title="6">    <span class="kw">implicit</span> <span class="kw">object</span> UserRepoOption <span class="kw">extends</span> UserRepo[Option] {</a>
+<a class="sourceLine" id="cb9-7" title="7">      <span class="kw">override</span> <span class="kw">def</span> <span class="fu">getUser</span>(userId: Option[Int]): Option[UserId] = ???</a>
+<a class="sourceLine" id="cb9-8" title="8">    }</a>
+<a class="sourceLine" id="cb9-9" title="9">  </a>
+<a class="sourceLine" id="cb9-10" title="10">    <span class="kw">implicit</span> <span class="kw">object</span> AlgorithmRepoOption <span class="kw">extends</span> AlgorithmRepo[Option]{</a>
+<a class="sourceLine" id="cb9-11" title="11">      <span class="kw">override</span> <span class="kw">def</span> <span class="fu">getAlgorithm</span>(recommenderId: Option[String]): Option[Algorithm] = ???</a>
+<a class="sourceLine" id="cb9-12" title="12">  </a>
+<a class="sourceLine" id="cb9-13" title="13">      <span class="kw">override</span> <span class="kw">def</span> <span class="fu">execute</span>(algo: Algorithm, userId: UserId): Option[UserRec] = ???</a>
+<a class="sourceLine" id="cb9-14" title="14">    }</a>
+<a class="sourceLine" id="cb9-15" title="15">  </a>
+<a class="sourceLine" id="cb9-16" title="16">    <span class="kw">implicit</span> <span class="kw">object</span> FilterOption <span class="kw">extends</span> Filter[Option] {</a>
+<a class="sourceLine" id="cb9-17" title="17">      <span class="kw">override</span> <span class="kw">def</span> <span class="fu">filter</span>(userRec: UserRec, limit: Int): Option[UserRec] = ???</a>
+<a class="sourceLine" id="cb9-18" title="18">    }</a>
+<a class="sourceLine" id="cb9-19" title="19">  </a>
+<a class="sourceLine" id="cb9-20" title="20">  }</a></code></pre></div>
+<p>And now the only thing we need to do for letting the compiler infer the implicit values it is just importing our implicit values on the context.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode scala htl"><code class="sourceCode scala"><a class="sourceLine" id="cb10-1" title="1"></a>
+<a class="sourceLine" id="cb10-2" title="2">  <span class="kw">import</span> DataSource._</a>
+<a class="sourceLine" id="cb10-3" title="3">  <span class="kw">import</span> algebras._</a>
+<a class="sourceLine" id="cb10-4" title="4"></a>
+<a class="sourceLine" id="cb10-5" title="5">  <span class="kw">def</span> <span class="fu">program</span>(userId: Option[Int],</a>
+<a class="sourceLine" id="cb10-6" title="6">              recommenderId: Option[String] = None,</a>
+<a class="sourceLine" id="cb10-7" title="7">              limit: Option[Int] = None): Unit = {</a>
+<a class="sourceLine" id="cb10-8" title="8"></a>
+<a class="sourceLine" id="cb10-9" title="9">    <span class="kw">import</span> interpreter._</a>
+<a class="sourceLine" id="cb10-10" title="10"></a>
+<a class="sourceLine" id="cb10-11" title="11">    <span class="kw">val</span> result: Option[Result] = getRecommendations[Option](userId, recommenderId, limit)</a>
+<a class="sourceLine" id="cb10-12" title="12"></a>
+<a class="sourceLine" id="cb10-13" title="13">    <span class="fu">printResults</span>(userId, result)</a>
+<a class="sourceLine" id="cb10-14" title="14"></a>
+<a class="sourceLine" id="cb10-15" title="15">  }</a>
+<a class="sourceLine" id="cb10-16" title="16">  </a></code></pre></div>
+<p>Have you notice that we are calling <code>getRecommendations</code> with <code>Option</code> as the <strong>Higher-Kinded Type</strong> or <strong>Type Constructor</strong>? Since we have indicated in <code>getRecommendations</code> that <code>F[_]</code> is context bounded by <code>UserRepo and AlgorithmRepo and Filter</code>, and for instance <strong><span class="math inline"><em>F</em> ≅ <em>O</em><em>p</em><em>t</em><em>i</em><em>o</em><em>n</em></span></strong>, the compiler should look for an <code>implicit</code> value for each Algebras whose <code>F</code> is <code>Option</code>. And that is what exactly we have provided to the compiler. But is this code compile and runs or only runs? Lets check</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode scala htl"><code class="sourceCode scala"><a class="sourceLine" id="cb11-1" title="1">λx.<span class="fu">x</span>&gt; $ sbt run</a>
+<a class="sourceLine" id="cb11-2" title="2">[error] value flatMap is not a member of <span class="kw">type</span> parameter F[program.<span class="fu">DataSource</span>.<span class="fu">UserId</span>]</a>
+<a class="sourceLine" id="cb11-3" title="3">[error]       user           &lt;- <span class="fu">getUser</span>(userId)</a>
+<a class="sourceLine" id="cb11-4" title="4">[error]                                ^</a>
+<a class="sourceLine" id="cb11-5" title="5">[error] value flatMap is not a member of <span class="kw">type</span> parameter F[program.<span class="fu">DataSource</span>.<span class="fu">Algorithm</span>]</a>
+<a class="sourceLine" id="cb11-6" title="6">[error]       algorithm      &lt;- <span class="fu">getAlgorithm</span>(recommenderId)</a>
+<a class="sourceLine" id="cb11-7" title="7">[error]                                     ^</a>
+<a class="sourceLine" id="cb11-8" title="8">[error] two errors found</a></code></pre></div>
+<p>But, why is this happening? Because <code>getRecommendations</code> is <strong>Context Bound</strong> or <strong>Constrained</strong> on <code>UserRepo: AlgorithmRepo: Filter</code> and <strong>for-comprehension</strong> in <em>Scala</em> is only a <em>syntactic sugar</em> for <code>flatMap</code>, <code>map</code> and <code>withFilter</code>. Of course <code>Option</code> type implements those methods and can be used in a for-comprehension syntax, but <em>for-comprehension</em> here is on <code>getRecommendations</code> and this function doesn’t know anything about <code>Option</code> or any other <em>Typeclass</em> until it is bound in <code>program</code>.</p>
+<p>In that sense we need a way to tell the compiler that <code>getRecommendations</code> supports <strong>for-comprehension</strong> syntax. We can do that creating an <strong>Algebra</strong> to support that syntax.</p>
+<blockquote>
+<p>I would like to point out that this part of the code is inspired on <strong><a href="http://degoes.net/">John De Goes</a></strong> Talk <strong>FP to the Max</strong> and i would strongly encourage you to watch this <a href="https://www.youtube.com/watch?v=sxudIMiOo68">video</a>.</p>
+</blockquote>
+<ul>
+<li>In our Algebra we are going to have this:</li>
+</ul>
+<div class="sourceCode" id="cb12"><pre class="sourceCode scala htl"><code class="sourceCode scala"><a class="sourceLine" id="cb12-1" title="1">  <span class="kw">trait</span> Program[F[_]] {</a>
+<a class="sourceLine" id="cb12-2" title="2"></a>
+<a class="sourceLine" id="cb12-3" title="3">    <span class="kw">def</span> flatMap[A, B](fa: F[A], afb: A =&gt; F[B]): F[B]</a>
+<a class="sourceLine" id="cb12-4" title="4"></a>
+<a class="sourceLine" id="cb12-5" title="5">    <span class="kw">def</span> map[A, B](fa: F[A], ab: A =&gt; B): F[B]</a>
+<a class="sourceLine" id="cb12-6" title="6"></a>
+<a class="sourceLine" id="cb12-7" title="7">  }</a>
+<a class="sourceLine" id="cb12-8" title="8">  <span class="kw">object</span> Program {</a>
+<a class="sourceLine" id="cb12-9" title="9">    <span class="kw">def</span> apply[F[_]](<span class="kw">implicit</span> F: Program[F]): Program[F] = F</a>
+<a class="sourceLine" id="cb12-10" title="10">  }</a>
+<a class="sourceLine" id="cb12-11" title="11">  <span class="kw">implicit</span> <span class="kw">class</span> ProgramSyntax[F[_], A](fa: F[A]) {</a>
+<a class="sourceLine" id="cb12-12" title="12">    <span class="kw">def</span> map[B](f: A =&gt; B)(<span class="kw">implicit</span> F: Program[F]): F[B] = F.<span class="fu">map</span>(fa, f)</a>
+<a class="sourceLine" id="cb12-13" title="13">    <span class="kw">def</span> flatMap[B](afb: A =&gt; F[B])(<span class="kw">implicit</span> F: Program[F]): F[B] = F.<span class="fu">flatMap</span>(fa, afb)</a>
+<a class="sourceLine" id="cb12-14" title="14">  }</a></code></pre></div>
+<ul>
+<li>An in our Interpreter we need resolution bound for <code>Option</code>:</li>
+</ul>
+<div class="sourceCode" id="cb13"><pre class="sourceCode scala htl"><code class="sourceCode scala"><a class="sourceLine" id="cb13-1" title="1">  <span class="kw">implicit</span> <span class="kw">object</span> ProgramOption <span class="kw">extends</span> Program[Option] {</a>
+<a class="sourceLine" id="cb13-2" title="2">    <span class="kw">override</span> <span class="kw">def</span> flatMap[A, B](fa: Option[A], afb: A =&gt; Option[B]): Option[B] = fa.<span class="fu">flatMap</span>(afb)</a>
+<a class="sourceLine" id="cb13-3" title="3"></a>
+<a class="sourceLine" id="cb13-4" title="4">    <span class="kw">override</span> <span class="kw">def</span> map[A, B](fa: Option[A], ab: A =&gt; B): Option[B] = fa.<span class="fu">map</span>(ab)</a>
+<a class="sourceLine" id="cb13-5" title="5"></a>
+<a class="sourceLine" id="cb13-6" title="6">  }</a></code></pre></div>
+<ul>
+<li>Last thing to do is to add <code>Program</code> <strong>Constraint</strong> to <code>getRecommendations</code>:</li>
+</ul>
+<div class="sourceCode" id="cb14"><pre class="sourceCode scala htl"><code class="sourceCode scala"><a class="sourceLine" id="cb14-1" title="1">  <span class="kw">def</span> getRecommendations[F[_]: UserRepo: AlgorithmRepo: Filter: Program](userId: Option[Int],</a>
+<a class="sourceLine" id="cb14-2" title="2">                                                                recommenderId: Option[String],</a>
+<a class="sourceLine" id="cb14-3" title="3">                                                                limit: Option[Int]): F[Result] = {</a>
+<a class="sourceLine" id="cb14-4" title="4">    <span class="kw">for</span> {</a>
+<a class="sourceLine" id="cb14-5" title="5">    ....</a>
+<a class="sourceLine" id="cb14-6" title="6">    }</a>
+<a class="sourceLine" id="cb14-7" title="7">  }</a></code></pre></div>
+<p><strong>Now our code compiles and run!!</strong></p>
       </section>
     </article>
     <div id="like-footer"></div>
@@ -63,4 +370,13 @@ s.setAttribute('data-timestamp', +new Date());
 })();
 </script>
 <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-</html>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script>document.addEventListener('DOMContentLoaded', (event) => {
+  document.querySelectorAll('pre code').forEach((block) => {
+    hljs.highlightBlock(block);
+  });
+ });
+</script>
+<script type="text/x-mathjax-config">
+ MathJax.Hub.Config({
+     tex2jax: {inlineMath: [['
