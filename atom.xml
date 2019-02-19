@@ -15,7 +15,7 @@
     <id>https://jproyo.github.io/posts/2019-02-07-practical-tagless-final-in-scala.html</id>
     <published>2019-02-07T00:00:00Z</published>
     <updated>2019-02-07T00:00:00Z</updated>
-    <summary type="html"><![CDATA[This gide is a practical example for beginners who want to understand better Tagless Final encoding in Scala.]]></summary>
+    <summary type="html"><![CDATA[This is a practical example for beginners who want to understand better Tagless Final encoding in Scala.]]></summary>
 </entry>
 <entry>
     <title>A journey from Lambda Calculus to Functional Programming</title>

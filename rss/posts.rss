@@ -11,7 +11,7 @@
         <item>
     <title>Tagless Final in Scala: A Practical example</title>
     <link>https://jproyo.github.io/posts/2019-02-07-practical-tagless-final-in-scala.html</link>
-    <description><![CDATA[This gide is a practical example for beginners who want to understand better Tagless Final encoding in Scala.]]></description>
+    <description><![CDATA[This is a practical example for beginners who want to understand better Tagless Final encoding in Scala.]]></description>
     <pubDate>Thu, 07 Feb 2019 00:00:00 UT</pubDate>
     <guid>https://jproyo.github.io/posts/2019-02-07-practical-tagless-final-in-scala.html</guid>
     <dc:creator>Juan Pablo Royo Sales</dc:creator>
