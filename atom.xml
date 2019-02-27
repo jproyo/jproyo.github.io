@@ -17,13 +17,5 @@
     <updated>2019-02-07T00:00:00Z</updated>
     <summary type="html"><![CDATA[This is a practical example for beginners who want to understand better Tagless Final encoding in Scala.]]></summary>
 </entry>
-<entry>
-    <title>A journey from Lambda Calculus to Functional Programming</title>
-    <link href="https://jproyo.github.io/posts/2019-02-02-journey-from-lambda-to-scala-fp.html" />
-    <id>https://jproyo.github.io/posts/2019-02-02-journey-from-lambda-to-scala-fp.html</id>
-    <published>2019-02-02T00:00:00Z</published>
-    <updated>2019-02-02T00:00:00Z</updated>
-    <summary type="html"><![CDATA[Slides where i talk about Functional Programming principles from Lambda Calculus Theory]]></summary>
-</entry>
 
 </feed>
