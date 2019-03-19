@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="haskell,fp,functional programming,tagless final encoding,tagless,final,encoding,type application,types">
+    <meta name="description" content="How to implement tagless final encoding in Haskell and making a testable program using Type Application" />
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:description" content="How to implement tagless final encoding in Haskell and making a testable program using Type Application">
+    <meta property="og:locale" content="es_US">
+    <meta property="og:title" content="Tagless Final Encoding in Haskell">
+    <meta property="og:description" content="How to implement tagless final encoding in Haskell and making a testable program using Type Application">
+    <title>Tagless Final Encoding in Haskell</title>
+    <link rel="stylesheet" href="../css/font-faces.css" />
+    <link rel="stylesheet" href="../css/post-bundle.css" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="../" title="Home">
+          <img id="home" src="../assets/images/home.svg" alt="Home"></a>
+        <a href="../rss/posts.rss" title="RSS feed">
+          <img class="icon-rss" src="../assets/images/rss.svg" alt="RSS"></a>
+        <a href="https://twitter.com/juanpabloroyo" title="Twitter profile">
+          <img class="icon" src="../assets/images/twitter.svg" alt="Twitter"></a>
+        <a href="https://github.com/jproyo" title="GitHub profile">
+          <img class="icon" src="../assets/images/github.svg" alt="GitHub"></a>
+        <a href="https://www.linkedin.com/in/juanpabloroyo" title="Linkedin profile">
+          <img class="icon" src="../assets/images/linkedin.svg" alt="Linkedin"></a>
+     </nav>
+    </header>
+
+    <h1 class="post-title">Tagless Final Encoding in Haskell</h1>
+    <div class="date"><span>March 17, 2019</span></div>
+    <article>
+      <section>
+        <h2 id="source-code">Source Code</h2>
+<p>You can find source code of the example described in this post <a href="https://gist.github.com/jproyo/7127418371a6d6254ff2208bf26c0315">here</a></p>
+<h2 id="introduction">Introduction</h2>
+<p>In this post i am going to explore a simple use case which organize our Monads in a <strong>Tagless Final Encoding</strong> approach to write testable programs in Haskell. I am also use <strong>TypeApplication LANGUAGE</strong> directive to write more readable and flexible test.</p>
+<h2 id="what-is-tagless-final-encoding">What is Tagless Final Encoding?</h2>
+<p><strong>Tagless Final Encoding</strong> is a technique for embedding a <strong>DSL</strong> (Domain Specific Language) in a <strong>Functional Programming Language</strong>. We need to define a <strong><em>Language</em></strong> for using it and an <strong>Interpreter</strong> to indicate how it should behave on each defined term. For this purpose we are going to use <strong>Typeclasses</strong>.</p>
+<p>To sum up in <strong>Tagless Final Encoding</strong> style there are:</p>
+<ul>
+<li><p><strong>Typeclasses</strong>: Set of operations over a Type.</p></li>
+<li><p><strong>Interpreter</strong>: Instances of those Typeclasses for each specific Type</p></li>
+</ul>
+<h2 id="tagless-final-encoding-in-practice">Tagless Final Encoding in practice</h2>
+<p>We are going to build a basic program which request some user data. The program is going to do the following:</p>
+<ul>
+<li>First try to recover the data from a cache</li>
+<li>If data is found it is returned</li>
+<li>If there is no data in the cache, search user data in source repository and update cache</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell htl"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">type</span> <span class="dt">UserName</span> <span class="fu">=</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="kw">data</span> <span class="dt">DataResult</span> <span class="fu">=</span> <span class="dt">DataResult</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb1-4" title="4">  <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</a>
+<a class="sourceLine" id="cb1-5" title="5"></a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="ot">requestData ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> <span class="dt">UserName</span> <span class="ot">-&gt;</span> m [<span class="dt">DataResult</span>]</a>
+<a class="sourceLine" id="cb1-7" title="7">requestData userName <span class="fu">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb1-8" title="8"> cache  <span class="ot">&lt;-</span> getFromCache userName</a>
+<a class="sourceLine" id="cb1-9" title="9"> result <span class="ot">&lt;-</span> <span class="kw">case</span> cache <span class="kw">of</span></a>
+<a class="sourceLine" id="cb1-10" title="10">   <span class="dt">Just</span> dataResult <span class="ot">-&gt;</span> <span class="fu">return</span> dataResult</a>
+<a class="sourceLine" id="cb1-11" title="11">   <span class="dt">Nothing</span>         <span class="ot">-&gt;</span> getFromSource userName</a>
+<a class="sourceLine" id="cb1-12" title="12"> storeCache result</a>
+<a class="sourceLine" id="cb1-13" title="13"> <span class="fu">return</span> result </a></code></pre></div>
+<p>Here it is our basic program which implements what we described above, but obviously this code doesn’t work because we need to define functions such as <code>getFromCache</code>, <code>getFromSource</code> and <code>storeCache</code>.</p>
+<p>For defining that we are going to use <strong>Typeclasses</strong> as we mentioned, in order to represent our program capabilities.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell htl"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">class</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> <span class="dt">Cache</span> m <span class="kw">where</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="ot">  getFromCache ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> m (<span class="dt">Maybe</span> [<span class="dt">DataResult</span>])</a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="ot">  storeCache ::</span> [<span class="dt">DataResult</span>] <span class="ot">-&gt;</span> m ()</a>
+<a class="sourceLine" id="cb2-4" title="4"></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="kw">class</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> <span class="dt">DataSource</span> m <span class="kw">where</span></a>
+<a class="sourceLine" id="cb2-6" title="6"><span class="ot">  getFromSource ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> m [<span class="dt">DataResult</span>]</a>
+<a class="sourceLine" id="cb2-7" title="7"> </a></code></pre></div>
+<p>Why are we defining <code>Cache</code> and <code>DataSource</code> <strong>Typeclasses</strong> as <code>Monad</code> also? Basically because we want to combine and chain our <strong>DSL</strong> terms in a single program.</p>
+<p>But we still need to change our program definition since we are constraining only on <code>Monad</code> and we want to use <code>Cache</code> and <code>DataSource</code> terms from the implicit context.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell htl"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="ot">requestData ::</span> (<span class="dt">Cache</span> m, <span class="dt">DataSource</span> m) <span class="ot">=&gt;</span> <span class="dt">UserName</span> <span class="ot">-&gt;</span> m [<span class="dt">DataResult</span>]</a>
+<a class="sourceLine" id="cb3-2" title="2">requestData userName <span class="fu">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb3-3" title="3"> cache  <span class="ot">&lt;-</span> getFromCache userName</a>
+<a class="sourceLine" id="cb3-4" title="4"> result <span class="ot">&lt;-</span> <span class="kw">case</span> cache <span class="kw">of</span></a>
+<a class="sourceLine" id="cb3-5" title="5">   <span class="dt">Just</span> dataResult <span class="ot">-&gt;</span> <span class="fu">return</span> dataResult</a>
+<a class="sourceLine" id="cb3-6" title="6">   <span class="dt">Nothing</span>         <span class="ot">-&gt;</span> getFromSource userName</a>
+<a class="sourceLine" id="cb3-7" title="7"> storeCache result</a>
+<a class="sourceLine" id="cb3-8" title="8"> <span class="fu">return</span> result </a></code></pre></div>
+<p>Notice that we don’t need anymore <strong><code>Monad</code></strong> Constraint in our signature because both <code>Cache</code> and <code>DataSource</code> are <code>Monad</code>s also.</p>
+<p>The only thing left is to write our <strong>Instances</strong> to provide some implementation. We are going to provide a fake implementation for <code>IO</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell htl"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">instance</span> <span class="dt">Cache</span> <span class="dt">IO</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  getFromCache _ <span class="fu">=</span> <span class="fu">return</span> <span class="dt">Nothing</span></a>
+<a class="sourceLine" id="cb4-3" title="3">  storeCache _ <span class="fu">=</span> <span class="fu">return</span> ()</a>
+<a class="sourceLine" id="cb4-4" title="4"></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="kw">instance</span> <span class="dt">DataSource</span> <span class="dt">IO</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb4-6" title="6">  getFromSource user <span class="fu">=</span> <span class="fu">return</span> <span class="fu">$</span> [<span class="dt">DataResult</span> <span class="fu">$</span> <span class="st">&quot;source: &quot;</span> <span class="fu">&lt;&gt;</span> user]</a></code></pre></div>
+<p>If we run our program from <strong>ghci</strong> we are going to see it is working:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash htl"><code class="sourceCode bash"><a class="sourceLine" id="cb5-1" title="1">λ<span class="ex">x.x</span><span class="op">&gt;</span> import Data</a>
+<a class="sourceLine" id="cb5-2" title="2"></a>
+<a class="sourceLine" id="cb5-3" title="3">λ<span class="ex">x.x</span><span class="op">&gt;</span> requestData <span class="st">&quot;john&quot;</span></a>
+<a class="sourceLine" id="cb5-4" title="4">[<span class="ex">DataResult</span> <span class="st">&quot;source: john&quot;</span>]</a></code></pre></div>
+<h2 id="provide-and-test-with-different-implementations-using-type-application">Provide and Test with different implementations using Type Application</h2>
+<p>One of the things I have announced on the beginning of this post is i am going to show how easy it is to test our programs using this technique combined with <strong>TypeApplication</strong> LANGUAGE extension. This combination enable us not only to test, but also to provide and interchange different instances of our <strong>Typeclasses</strong> in a straightforward way.</p>
+<h3 id="instances">Instances</h3>
+<p>In order to provide different instances of <code>Cache</code> and <code>DataSource</code>, and play around with different cases, for example when data is in cache or not, i am going to use <code>newtype</code> to wrapper <code>IO</code> and have different <strong>Type</strong> representation but the same underlying <strong>Type</strong>.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell htl"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="ot">{-# LANGUAGE GeneralisedNewtypeDeriving #-}</span></a>
+<a class="sourceLine" id="cb6-2" title="2"></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="kw">newtype</span> <span class="dt">NotInCache</span> a <span class="fu">=</span> <span class="dt">NotInCache</span> {<span class="ot"> unNoCache ::</span> <span class="dt">IO</span> a }</a>
+<a class="sourceLine" id="cb6-4" title="4">  <span class="kw">deriving</span> (<span class="dt">Monad</span>, <span class="dt">Applicative</span>, <span class="dt">Functor</span>)</a>
+<a class="sourceLine" id="cb6-5" title="5"></a>
+<a class="sourceLine" id="cb6-6" title="6"><span class="kw">instance</span> <span class="dt">Cache</span> <span class="dt">NotInCache</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb6-7" title="7">  getFromCache _ <span class="fu">=</span> <span class="dt">NotInCache</span> <span class="fu">$</span> <span class="fu">return</span> <span class="dt">Nothing</span></a>
+<a class="sourceLine" id="cb6-8" title="8">  storeCache _ <span class="fu">=</span> <span class="dt">NotInCache</span> <span class="fu">$</span> <span class="fu">return</span> ()</a>
+<a class="sourceLine" id="cb6-9" title="9"></a>
+<a class="sourceLine" id="cb6-10" title="10"><span class="kw">instance</span> <span class="dt">DataSource</span> <span class="dt">NotInCache</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb6-11" title="11">  getFromSource user <span class="fu">=</span> <span class="fu">return</span> <span class="fu">$</span> [<span class="dt">DataResult</span> <span class="fu">$</span> <span class="st">&quot;source: &quot;</span> <span class="fu">&lt;&gt;</span> user]</a>
+<a class="sourceLine" id="cb6-12" title="12"> </a></code></pre></div>
+<p>For the first instance we need to do enable <strong>GeneralisedNewtypeDeriving</strong> extension to allow us deriving <code>Functor</code>, <code>Monad</code> and <code>Applicative</code> because our <strong>Typeclasses</strong> <code>Cache</code> and <code>DataSource</code> are also <code>Monad</code> and we need to provide implementations of those <strong>Typeclasses</strong> for our custom type <code>NotInCache</code></p>
+<p>Now if we are trying to run this in <strong>ghci</strong> we are getting the following error:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash htl"><code class="sourceCode bash"><a class="sourceLine" id="cb7-1" title="1">λ<span class="ex">x.x</span><span class="op">&gt;</span> requestData <span class="st">&quot;john&quot;</span></a>
+<a class="sourceLine" id="cb7-2" title="2"></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="op">&lt;</span><span class="ex">interactive</span><span class="op">&gt;</span>:5:1: error:</a>
+<a class="sourceLine" id="cb7-4" title="4">    • <span class="ex">Ambiguous</span> type variable ‘m0’ arising from a use of ‘print’</a>
+<a class="sourceLine" id="cb7-5" title="5">      <span class="ex">prevents</span> the constraint ‘(Show</a>
+<a class="sourceLine" id="cb7-6" title="6">                                  <span class="kw">(</span><span class="ex">m0</span> [DataResult]<span class="kw">)</span>)’ <span class="ex">from</span> being solved.</a>
+<a class="sourceLine" id="cb7-7" title="7">      <span class="ex">Probable</span> fix: use a type annotation to specify what ‘m0’ should be.</a>
+<a class="sourceLine" id="cb7-8" title="8">      <span class="ex">These</span> potential instances exist:</a>
+<a class="sourceLine" id="cb7-9" title="9">        <span class="ex">instance</span> (Show a, Show b) =<span class="op">&gt;</span> <span class="ex">Show</span> (Either a b)</a>
+<a class="sourceLine" id="cb7-10" title="10">          <span class="ex">--</span> Defined in ‘Data.Either’</a>
+<a class="sourceLine" id="cb7-11" title="11">        <span class="ex">instance</span> Show a =<span class="op">&gt;</span> Show (Maybe a) <span class="ex">--</span> Defined in ‘GHC.Show’</a>
+<a class="sourceLine" id="cb7-12" title="12">        <span class="ex">instance</span> (Show a, Show b) =<span class="op">&gt;</span> <span class="ex">Show</span> (a, b) <span class="ex">--</span> Defined in ‘GHC.Show’</a>
+<a class="sourceLine" id="cb7-13" title="13">        <span class="ex">...plus</span> 14 others</a>
+<a class="sourceLine" id="cb7-14" title="14">        <span class="ex">...plus</span> 89 instances involving out-of-scope types</a>
+<a class="sourceLine" id="cb7-15" title="15">        <span class="kw">(</span><span class="ex">use</span> -fprint-potential-instances to see them all<span class="kw">)</span></a>
+<a class="sourceLine" id="cb7-16" title="16">    • <span class="ex">In</span> a stmt of an interactive GHCi command: print it</a></code></pre></div>
+<p>Basically the compiler is saying us that it cannot find an unambiguous instance to use for our program. But also as the compiler is pointed out we can use <strong>TypeApplication</strong> extension to tell the compiler what instance should use and provide an explicit evidence of that.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash htl"><code class="sourceCode bash"><a class="sourceLine" id="cb8-1" title="1">λ<span class="ex">x.x</span><span class="op">&gt;</span> :set -XTypeApplications</a>
+<a class="sourceLine" id="cb8-2" title="2"></a>
+<a class="sourceLine" id="cb8-3" title="3">λ<span class="ex">x.x</span><span class="op">&gt;</span> unNoCache $ requestData @NotInCache <span class="st">&quot;john&quot;</span></a>
+<a class="sourceLine" id="cb8-4" title="4">[<span class="ex">DataResult</span> <span class="st">&quot;source: john&quot;</span>]</a></code></pre></div>
+<p>Here we’ve enabled extension and after that we are running our program with <code>NotInCache</code> type. Notice that now we need to call <code>unNoCache</code> to unwrap our underlying <code>IO</code> and effectively running in our <strong>ghci</strong> <code>IO</code> loop.</p>
+<p>We can also do it from our <strong>.hs</strong> file.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell htl"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1"><span class="ot">{-# LANGUAGE TypeApplications #-}</span></a>
+<a class="sourceLine" id="cb9-2" title="2"></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="co">-- Rest of the program here</span></a>
+<a class="sourceLine" id="cb9-4" title="4"></a>
+<a class="sourceLine" id="cb9-5" title="5"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb9-6" title="6">main <span class="fu">=</span> (unNoCache <span class="fu">$</span> requestData <span class="fu">@</span><span class="dt">NotInCache</span> <span class="st">&quot;john&quot;</span>) <span class="fu">&gt;&gt;=</span> (<span class="fu">putStrLn</span> <span class="fu">.</span> <span class="fu">show</span>)</a></code></pre></div>
+<p>Now we are ready for different instances!!!</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell htl"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">newtype</span> <span class="dt">InCache</span> a <span class="fu">=</span> <span class="dt">InCache</span> {<span class="ot"> unInCache ::</span> <span class="dt">IO</span> a }</a>
+<a class="sourceLine" id="cb10-2" title="2">  <span class="kw">deriving</span> (<span class="dt">Monad</span>, <span class="dt">Applicative</span>, <span class="dt">Functor</span>)</a>
+<a class="sourceLine" id="cb10-3" title="3"></a>
+<a class="sourceLine" id="cb10-4" title="4"><span class="kw">instance</span> <span class="dt">Cache</span> <span class="dt">InCache</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb10-5" title="5">  getFromCache user <span class="fu">=</span> <span class="dt">InCache</span> <span class="fu">$</span> <span class="fu">return</span> <span class="fu">$</span> <span class="dt">Just</span> [<span class="dt">DataResult</span> <span class="fu">$</span> <span class="st">&quot;cache: &quot;</span> <span class="fu">&lt;&gt;</span> user]</a>
+<a class="sourceLine" id="cb10-6" title="6">  storeCache _ <span class="fu">=</span> <span class="dt">InCache</span> <span class="fu">$</span> <span class="fu">return</span> ()</a>
+<a class="sourceLine" id="cb10-7" title="7"></a>
+<a class="sourceLine" id="cb10-8" title="8"><span class="kw">instance</span> <span class="dt">DataSource</span> <span class="dt">InCache</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb10-9" title="9">  getFromSource _ <span class="fu">=</span> <span class="fu">undefined</span></a>
+<a class="sourceLine" id="cb10-10" title="10"> </a>
+<a class="sourceLine" id="cb10-11" title="11"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb10-12" title="12">main <span class="fu">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb10-13" title="13">  (unNoCache <span class="fu">$</span> requestData <span class="fu">@</span><span class="dt">NotInCache</span> <span class="st">&quot;john&quot;</span>) <span class="fu">&gt;&gt;=</span> (<span class="fu">putStrLn</span> <span class="fu">.</span> <span class="fu">show</span>)</a>
+<a class="sourceLine" id="cb10-14" title="14">  (unInCache <span class="fu">$</span> requestData <span class="fu">@</span><span class="dt">InCache</span> <span class="st">&quot;john&quot;</span>) <span class="fu">&gt;&gt;=</span> (<span class="fu">putStrLn</span> <span class="fu">.</span> <span class="fu">show</span>)</a></code></pre></div>
+<p>The outputs now look like this:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash htl"><code class="sourceCode bash"><a class="sourceLine" id="cb11-1" title="1">λ<span class="ex">x.x</span><span class="op">&gt;</span> Data.main</a>
+<a class="sourceLine" id="cb11-2" title="2">[<span class="ex">DataResult</span> <span class="st">&quot;source: john&quot;</span>]</a>
+<a class="sourceLine" id="cb11-3" title="3">[<span class="ex">DataResult</span> <span class="st">&quot;cache: john&quot;</span>]</a></code></pre></div>
+<h2 id="extensibility">Extensibility</h2>
+<p>One of the important aspects of <strong>Tagless Final Encoding</strong> is its extensibility property. It is extensible in 2 dimensions:</p>
+<ul>
+<li><p><strong>Vertical Extensibility</strong>: It is what we have just done adding different implementations for the same <strong>Typeclasses</strong> without altering our program.</p></li>
+<li><p><strong>Horizontal Extensibility</strong>: It is adding new capabilities to the program in order to extend some functionality inside it.</p></li>
+</ul>
+<h3 id="horizontal-extensibility">Horizontal Extensibility</h3>
+<p>Our program capabilities beyond <code>Monad</code>, <code>Functor</code> and <code>Applicative</code> <strong>Typeclasses</strong> are <code>Cache</code> and <code>DataSource</code>. If we are saying that it is <em>Horizontal Extensible</em> we can add more capabilities apart from those mentioned. For example what about <code>Logging</code>?.</p>
+<p>Let do it with our example:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell htl"><code class="sourceCode haskell"><a class="sourceLine" id="cb12-1" title="1"></a>
+<a class="sourceLine" id="cb12-2" title="2"><span class="kw">class</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> <span class="dt">Logging</span> m <span class="kw">where</span></a>
+<a class="sourceLine" id="cb12-3" title="3"><span class="ot">  logMsg ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> m ()</a>
+<a class="sourceLine" id="cb12-4" title="4"></a>
+<a class="sourceLine" id="cb12-5" title="5"><span class="ot">requestData ::</span> (<span class="dt">Cache</span> m, <span class="dt">DataSource</span> m, <span class="dt">Logging</span> m) <span class="ot">=&gt;</span> <span class="dt">UserName</span> <span class="ot">-&gt;</span> m [<span class="dt">DataResult</span>]</a>
+<a class="sourceLine" id="cb12-6" title="6">requestData userName <span class="fu">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb12-7" title="7"> cache  <span class="ot">&lt;-</span> getFromCache userName</a>
+<a class="sourceLine" id="cb12-8" title="8"> result <span class="ot">&lt;-</span> <span class="kw">case</span> cache <span class="kw">of</span></a>
+<a class="sourceLine" id="cb12-9" title="9">   <span class="dt">Just</span> dataResult <span class="ot">-&gt;</span> <span class="fu">return</span> dataResult</a>
+<a class="sourceLine" id="cb12-10" title="10">   <span class="dt">Nothing</span>         <span class="ot">-&gt;</span> getFromSource userName</a>
+<a class="sourceLine" id="cb12-11" title="11"> storeCache result</a>
+<a class="sourceLine" id="cb12-12" title="12"> logMsg <span class="fu">$</span> <span class="st">&quot;Result data for user: &quot;</span> <span class="fu">&lt;&gt;</span> userName <span class="fu">&lt;&gt;</span> <span class="st">&quot; - data: &quot;</span> <span class="fu">&lt;&gt;</span> <span class="fu">show</span> result</a>
+<a class="sourceLine" id="cb12-13" title="13"> <span class="fu">return</span> result</a></code></pre></div>
+<p>And now providing instances for <code>Logging</code></p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell htl"><code class="sourceCode haskell"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">instance</span> <span class="dt">Logging</span> <span class="dt">NotInCache</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb13-2" title="2">  logMsg <span class="fu">=</span> <span class="dt">NotInCache</span> <span class="fu">.</span> <span class="fu">putStrLn</span></a>
+<a class="sourceLine" id="cb13-3" title="3"></a>
+<a class="sourceLine" id="cb13-4" title="4"><span class="kw">instance</span> <span class="dt">Logging</span> <span class="dt">InCache</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb13-5" title="5">  logMsg <span class="fu">=</span> <span class="dt">InCache</span> <span class="fu">.</span> <span class="fu">putStrLn</span></a>
+<a class="sourceLine" id="cb13-6" title="6"> </a></code></pre></div>
+<p>If we run the program we obtain the following:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash htl"><code class="sourceCode bash"><a class="sourceLine" id="cb14-1" title="1">λ<span class="ex">x.x</span><span class="op">&gt;</span> Data.main</a>
+<a class="sourceLine" id="cb14-2" title="2"><span class="ex">Result</span> data for user: john - data: [DataResult <span class="st">&quot;source: john&quot;</span>]</a>
+<a class="sourceLine" id="cb14-3" title="3">[<span class="ex">DataResult</span> <span class="st">&quot;source: john&quot;</span>]</a>
+<a class="sourceLine" id="cb14-4" title="4"><span class="ex">Result</span> data for user: john - data: [DataResult <span class="st">&quot;cache: john&quot;</span>]</a>
+<a class="sourceLine" id="cb14-5" title="5">[<span class="ex">DataResult</span> <span class="st">&quot;cache: john&quot;</span>]</a></code></pre></div>
+<h3 id="conclusion">Conclusion</h3>
+<p>As we can see, <strong>Tagless Final Encoding</strong> is a pretty good technique to build testable and extensible programs.</p>
+<p>We have also demonstrated how easy is to interchange and provide different instances using <strong>TypeApplication</strong> extension.:w</p>
+      </section>
+    </article>
+    <div id="like-footer"></div>
+  </body>
+
+  <div id="disqus_thread"></div>
+
+  <div class="footer-separator"></div>
+
+<script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://jproyo.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script>document.addEventListener('DOMContentLoaded', (event) => {
+  document.querySelectorAll('pre code').forEach((block) => {
+    hljs.highlightBlock(block);
+  });
+ });
+</script>
+<script type="text/x-mathjax-config">
+ MathJax.Hub.Config({
+     tex2jax: {inlineMath: [['
