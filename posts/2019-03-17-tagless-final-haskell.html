@@ -111,7 +111,7 @@
 <h2 id="provide-and-test-with-different-implementations-using-type-application">Provide and Test with different implementations using Type Application</h2>
 <p>One of the things I have announced on the beginning of this post is i am going to show how easy it is to test our programs using this technique combined with <strong>TypeApplication</strong> LANGUAGE extension. This combination enable us not only to test, but also to provide and interchange different instances of our <strong>Typeclasses</strong> in a straightforward way.</p>
 <h3 id="instances">Instances</h3>
-<p>In order to provide different instances of <code>Cache</code> and <code>DataSource</code>, and play around with different cases, for example when data is in cache or not, i am going to use <code>newtype</code> to wrapper <code>IO</code> and have different <strong>Type</strong> representation but the same underlying <strong>Type</strong>.</p>
+<p>In order to provide different instances of <code>Cache</code> and <code>DataSource</code>, and play around with different cases, for example when data is in cache or not, i am going to wrappe <code>IO</code> type in different <code>newtype</code> representations.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode haskell htl"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="ot">{-# LANGUAGE GeneralisedNewtypeDeriving #-}</span></a>
 <a class="sourceLine" id="cb6-2" title="2"></a>
 <a class="sourceLine" id="cb6-3" title="3"><span class="kw">newtype</span> <span class="dt">NotInCache</span> a <span class="fu">=</span> <span class="dt">NotInCache</span> {<span class="ot"> unNoCache ::</span> <span class="dt">IO</span> a }</a>
