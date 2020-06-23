@@ -1,0 +1,43 @@
+# Site settings
+title: "Juan Pablo Royo Sales"
+description: "FP, Haskell, some related math and Computer Science Blog"
+url: 'https://jproyo.github.io'
+baseurl: ""
+# google_analytics: 'UA-XXXXXX-X'
+disqus_shortname: 'jproyo'
+
+author:
+  name: 'Juan Pablo Royo Sales'
+  email: juanpablo.royo@gmail.com
+  twitter_username: juanpabloroyo
+  github_username:  jproyo
+  linkedin_username:  juanpabloroyo
+
+defaults:
+  -
+    scope:
+      path: ''
+      type: 'posts'
+    values:
+        layout: 'post'
+
+# Build settings
+destination: _site
+paginate: 10
+permalink: /:year/:month/:day/:title/
+markdown: kramdown
+highlighter: rouge
+
+sass:
+    sass_dir: _sass
+    style: compressed
+
+kramdown:
+  # use Github Flavored Markdown
+  input: GFM
+  # do not replace newlines by <br>s
+  hard_wrap: false
+
+plugins: ['jekyll-paginate']
+exclude: ['README.md', 'Gemfile', 'Gemfile.lock']
+
