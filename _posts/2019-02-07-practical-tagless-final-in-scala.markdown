@@ -238,7 +238,7 @@ Here we have a couple of things perhaps new for the reader:
 
 - We are defining our Types with **Higher-Kinded Types** parameters (`F[_]`) to abstract out the Container Structure that it is going to be use in each *Interpreter*. A *Higher-Kinded Type* or Type Constructor is a Type which constructs a new Type based on a Type Parameter. For example `Option[+A]` is a Type constructor which takes a Type, for example `String` and constructs the final Type, for example `Option[String]`. You can probe this in a Scala console with *:kind* command:
 
-{% highlight scala %}
+{% highlight terminal %}
 scala> :k String
 String's kind is A
 
@@ -349,7 +349,7 @@ Have you notice that we are calling `getRecommendations` with `Option[+A]` as th
 
 the compiler should look for an `implicit` value for each Algebras whose `F` is `Option[+A]`. And that is what exactly we have provided to the compiler. But is this code compile and runs or only runs? Lets check
 
-{% highlight scala %}
+{% highlight terminal %}
 λx.x> $ sbt run
 [error] value flatMap is not a member of type parameter F[program.DataSource.UserId]
 [error]       user           <- getUser(userId)
@@ -473,7 +473,7 @@ Now we have defined our `fold` operation which is going to fold over `F`. It is 
 
 The code compiles and runs again with an abstract version of `printResults`. Lets see some examples:
 
-{% highlight scala %}
+{% highlight terminal %}
 λx.x> $ sbt run
 [info] Done packaging.
 [info] Running (fork) program.ToScalaFP
@@ -519,7 +519,7 @@ Lets try to figure out our first problem which is how to bind a **Type Construct
 
 We can check this incongruence in **Scala** console very easily
 
-{% highlight scala %}
+{% highlight terminal %}
 scala> :kind Either
 Either's kind is F[+A1,+A2]
 {% endhighlight %}
@@ -528,7 +528,7 @@ As we can appreciate `Either[+A,+B]` has kind `F[+A,+B]` and we are asking a kin
 
 Basically a *Lambda Type* is similar to a Partially applied function but at a Type Level. We can **curry** our **2 parameter Type Constructor** to obtain another **1 parameter Type Constructor**. This is how it is done:
 
-{% highlight scala %}
+{% highlight terminal %}
 scala> :kind ({ type T[A] = Either[AppError, A] })#T
 scala.util.Either[AppError,?]'s kind is F[+A]
 {% endhighlight %}
@@ -539,7 +539,7 @@ As we can see in *Scala console* example we are fixing **Left** `Either` paramet
 
 With **kind-projector** we can have a more readable *Lambda Type* like this:
 
-{% highlight scala %}
+{% highlight terminal %}
 scala> :kind Either[AppError, ?]
 scala.util.Either[AppError,?]'s kind is F[+A]
 {% endhighlight %}
@@ -619,7 +619,7 @@ And we can execute both programs running on different interpreters at the same t
 
 If we run this program now we can compare detailed error when we interpret the Algebra with `Either[+A,+B]` against unknown errors with `Option[+A]`:
 
-{% highlight scala %}
+{% highlight terminal %}
 λx.x> $ sbt run
 Recommnedations for userId UserId(1)...
 Algorithm algo1
@@ -685,7 +685,7 @@ To have an idea of this approach to that this could be done like this:
 
 {% endhighlight %}
 
-### Conclusion
+## Conclusion
 
 **Tagless Final Encoding** is a very good technique to encode DSL and separate the interpretation of DSL definition from implementation in a pure Functional way and as i pointed out on [Disclaimer](#disclaimer) section, implementing this technique with some **Scala FP** library such as **cats, scalaz or any other** do the work strait forward and easy, removing a lot of boilerplate code we are using here, specially **[Program Algebra](#program-syntax-for-comprehension-aware)**
 

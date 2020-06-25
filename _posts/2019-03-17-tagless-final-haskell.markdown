@@ -115,7 +115,7 @@ instance DataSource IO where
 
 If we run our program from **ghci** we are going to see it is working:
 
-{% highlight haskell %}
+{% highlight terminal %}
 λx.x> import Data
 
 λx.x> requestData "john"
@@ -150,7 +150,7 @@ For the first instance we need to do enable **GeneralisedNewtypeDeriving** exten
 
 Now if we are trying to run this in **ghci** we are getting the following error:
 
-{% highlight haskell %}
+{% highlight terminal %}
 λx.x> requestData "john"
 
 <interactive>:5:1: error:
@@ -171,7 +171,7 @@ Now if we are trying to run this in **ghci** we are getting the following error:
 
 Basically the compiler is saying us that it cannot find an unambiguous instance to use for our program. But also as the compiler is pointed out we can use **TypeApplication** extension to tell the compiler what instance should use and provide an explicit evidence of that.
 
-{% highlight haskell %}
+{% highlight terminal %}
 λx.x> :set -XTypeApplications
 
 λx.x> :t requestData "john"
@@ -184,7 +184,7 @@ requestData @NotInCache "john" :: NotInCache [DataResult]
 
 Here we've enabled extension and after that we are running our program with `NotInCache` type. Notice that now we need to call `unNoCache` to unwrap our underlying `IO` and effectively running in our **ghci** `IO` loop.
 
-{% highlight haskell %}
+{% highlight terminal %}
 x.x> unNoCache $ requestData "john"
 [DataResult "source: john"]
 {% endhighlight %}
@@ -217,7 +217,7 @@ main = do
 
 The outputs now look like this:
 
-{% highlight haskell %}
+{% highlight terminal %}
 λx.x> Data.main
 [DataResult "source: john"]
 [DataResult "cache: john"]
@@ -267,7 +267,7 @@ instance Logging InCache where
 
 If we run the program we obtain the following:
 
-{% highlight haskell %}
+{% highlight terminal %}
 λx.x> Data.main
 Result data for user: john - data: [DataResult "source: john"]
 [DataResult "source: john"]
@@ -275,7 +275,7 @@ Result data for user: john - data: [DataResult "cache: john"]
 [DataResult "cache: john"]
 {% endhighlight %}
 
-### Conclusion
+## Conclusion
 
 As we can see, **Tagless Final Encoding** is a pretty good technique to build testable and extensible programs.
 
