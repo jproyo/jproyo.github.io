@@ -6,6 +6,7 @@ date: 2019-03-17
 excerpt: How to implement tagless final encoding in Haskell and making a testable program using Type Application
 categories: [haskell, fp, functional, tagless, final, encoding, type, level, programming]
 tags: [haskell, fp, functional, tagless, final, encoding, type, level, programming]
+permalink: /posts/2019-03-17-tagless-final-haskell.html
 ---
 
 ## Source Code

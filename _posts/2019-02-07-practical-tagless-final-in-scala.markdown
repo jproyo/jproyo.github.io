@@ -6,6 +6,7 @@ date: 2019-02-07
 categories: [scala, fp, functional, programming, tagless, final]
 tags: [scala, fp, functional, programming, tagless, final]
 excerpt: This is a practical example for beginners who want to understand better Tagless Final encoding in Scala.
+permalink: /posts/2019-02-07-practical-tagless-final-scala.html
 ---
 
 ## Source Code
