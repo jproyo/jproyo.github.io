@@ -13,7 +13,7 @@ permalink: /posts/2019-02-07-practical-tagless-final-in-scala.html
 
 To get a complete version of the source code presented here, go here [Github Repo](https://github.com/jproyo/imperative-to-fp/tree/demo-end).
 
-> This post is based on **demo-end** branch and **NOT** in master
+> All the examples of this post can be found on `demo-end` branch and **NOT** in `master`
 
 ## Disclaimer
 
