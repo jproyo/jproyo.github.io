@@ -11,18 +11,18 @@ permalink: /posts/2021-03-17-encoding-effects-freer-simple.html
 
 ## Introduction
 
-In previous posts I have [written](/posts/2019-03-17-tagless-final-haskell.html) about how encode **Effects** using a **Tagless Final** approach. 
+In previous posts I have [written](/posts/2019-03-17-tagless-final-haskell.html) about how encode **Effects** (e.g. IO, Database access and Caching) using a **Tagless Final** approach. 
 On that article, the idea was to show how to organize a program which can have different *Effects* and compose and combine them in a single program. I've also explored the *technique* of **Tagless Final** for representing the encoding and [**mtl**](https://hackage.haskell.org/package/mtl) in particular to *handle or interpret* effects.
 
 ## Context
 
-**Effectful computations** or **Algebraic Handlers** is a quite interesting topic for me, because in the majority of Industry Software Solutions nowadays it is impossible to escape from connecting with some external Service or System. Apart from that, in my opinion, any Industry Software Solutions should have at least *Metrics* and *Logs* before be shipped into production. Saying that, it is almost impossible to escape from this and we need to deal with side effects, in one way or another. 
+The majority of Industry Software Solutions nowadays cannot escape to be connected to an external Service or System. Although there are some cases where our Solutions does not need connecting to an external service, the program still needs some kind of monitoring, metrics and logs before being shipped into a production environment. Taking these into consideration, it seems inevitable to deal with side effects in our language. Therefore **Effectful computations** or **Algebraic Effect Handlers** is a very interesting and important topic for me, because it encodes **Effects** as a ***first-class*** citizen in our *FP Programs*.
 
-Everyone of us, as **Functional Programming Developer** want to deal only with *pure* functions and we don't want to deal with *side effects* or *non-deterministic* computations. But *pure FP* can happen only on small portions of our software solutions in the Industry and at the end we need to deal with *side effects*. 
+Everyone of us, as **Functional Programming Developer** want to deal only with *pure* functions and we don't want to deal with *side effects*. But *pure FP* can happen only on small portions of our software solutions in the Industry and at the end we need to deal with *side effects*. 
 
-As I've explained in my previous article there are several ways to encode **Effects** in order to write our program with ***pure functions*** and write the interpretation or ***side effects computations*** to specific *Handlers* in a decouple way. In such a way we end up with a **Pure Program** that could be run or interpret later with **Side effects computations**. This **powerful abstraction** allow us to *reason* about our programs as we do with *pure functions* but at the same time having the ability to run it in other *non-pure* contexts.
+As I've explained in my previous article there are several ways to encode **Effects** in order to write our program with ***pure functions*** and write the interpretation or ***side effects computations*** to specific *Effect* in a decouple way. In such a way we end up with a **Pure Program** that could be run or interpret later with **Side effects computations**. This **powerful abstraction** allow us to *reason* about our programs as we do with *pure functions* but at the same time having the ability to run it in other *non-pure* contexts.
 
-After trying in production system, different approaches and libraries for encoding and handling **Effects** I would like to explain my experience using [*freer-simple*](https://hackage.haskell.org/package/freer-simple) which is one of my favourite and also the one that I am currently using.
+After trying different approach and libraries for encoding and handling **effects** in production systems, I would like to explain my experience using [*freer-simple*](https://hackage.haskell.org/package/freer-simple) which is one of my favourite and also the one that I am currently using.
 
 
 ## freer-simple
@@ -54,9 +54,9 @@ As an user I want to upload some personal documents
 to the system in order to complete my identification process.
 {% endhighlight %}
 
-This is also known as ***KYC (Known your Customer)*** process. So, lets assume that we need to run this kind of process and identify properly to the user asking for some personal documentation to verify his identity. In that case we need to be able to provide some mean to the user that is already registered in our System to allow them upload those documents.
+This is also known as ***KYC (Known your Customer)*** process. So, lets assume that we need to run this kind of process and identify the user, asking for some personal documentation to verify them. In that case we need to be able to provide some mean to the user that is already registered in our System to allow them upload those documents.
 
-**W.l.g.** lets assume that our Solution is going to use **AWS S3** as a Storage Provider for the documentation and **PostgreSQL** as a Relational Database for storing related data to that user and document. We are going to need that DB in order to store the **reference or document path to S3** in order to be able to recover that specific document later if it is requested by the user or by other means.
+Lets assume **w.l.o.g.** that our Solution is going to use **AWS S3** as a Storage Provider for the documentation and **PostgreSQL** as a Relational Database for storing related data to that user and document. We are going to need that DB in order to store the **reference or document path to S3** in order to be able to recover that specific document later if it is requested by the user or by other means.
 
 On the other hand we are going to expose this capability as a *REST API* endpoint and we are going to use [**servant**](https://hackage.haskell.org/package/servant) for that matter.
 
@@ -98,7 +98,7 @@ We need to see now all the Effects that are involved in the **Open Union Type** 
 
 ### Effects
 
-In **freer-simple** library there are a tool set for defining *Custom Effects* as well as some already provided common effects that can be found in **Monad Transformer** libraries like **mtl**. In my example I am using both kind of effects, already built in effects that are packed with it *Handlers* and *Custom* Effects that we need to build and provider the specific *Handler* for them.
+In **freer-simple** library there is a tool set for defining *Custom Effects* as well as some already provided common effects that can be found in **Monad Transformer** libraries like **mtl**. In my example I am using both kind of effects, already built in effects that are packed with it *Handlers* and *Custom* Effects that we need to build and provider the specific *Handler* for them.
 
 - *Custom* effects in my example are: `DocStorage`, `DataAccess` and `Logging`. Last one could have been implemented using `Writer` effect provided by the library but I prefer something custom in order to interpret that effect using [co-log](https://hackage.haskell.org/package/co-log) library.
 
@@ -106,10 +106,10 @@ In **freer-simple** library there are a tool set for defining *Custom Effects* a
 
 #### Custom Effects
 
-In Custom Effects you need to provide the definition of the **GADT** that is going to describe the Algebra of your Effect and the function that is going to introduce or `send` that Algebra to the `Eff r a` *Monad* that is going to contain the indexed **Open Union Type**, injecting this Algebra into the index list.
+In Custom Effects you need to provide the definition of the **GADT** which describes the Algebra of your Effect and the function that introduces or `send` that Algebra to the `Eff r a` *Monad* whose indexed **Open Union Type** is contained in. With this function we are injecting our *Algebra* into that index list.
 
 > NOTE: It is important to point out that **freer-simple** provides [Template Haskell](https://wiki.haskell.org/Template_Haskell) tooling for auto-generate the `send` injecting
-functions by us, but I've preferred to be a little more boilerplate for educational purpose.
+functions for us, but I've preferred to be a little more boilerplate for educational purpose.
 
 #### DocStorage Effect
 {% highlight haskell %}
@@ -410,9 +410,11 @@ runS3StorageTest Boundaries{..} =
 It is just a matter of implementing the right interpreters in the format that we want that allow us to run any test or combination we might need.
 
 ## Conclusions
-**freer-simple** library is an easy **Effect System** library that is based on Academic Research Papers and provide a Robust and Extensible way to build *Effectful Programs*.
+**freer-simple** library is an *ergonomic* but not *easy* **Effect System** library that is based on Academic Research Papers and provide a Robust and Extensible way to build *Effectful Programs*.
+
 On the other hand we have seen the flexibility this tooling has providing us with some built-in *effects* like `Reader`, `Writer`, `State` and so on.
-Finally we have seen how we can quickly define *pure* interpreters or *Handlers* to escape from the *non-deterministic* context and be able to Test our programs. This interpretations are easy to built, does not require multiple `newtype` declarations or **Monad** mock instances and moreover are highly composable.
+
+Finally we have seen how we can quickly define *pure* interpreters or *Handlers* to escape from the *non-deterministic* context and be able to Test our programs. This interpretations are easy to built, avoiding the $$O(n^2)$$ problem on **mtl** instances without requiring **Monad** mock instances; and highly composable as well.
 
 ## Acknowledges
 
