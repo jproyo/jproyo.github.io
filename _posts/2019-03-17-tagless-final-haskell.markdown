@@ -64,11 +64,12 @@ data DataResult = DataResult String
 requestData :: Monad m => UserName -> m [DataResult]
 requestData userName = do
  cache  <- getFromCache userName
- result <- case cache of
+ case cache of
    Just dataResult -> return dataResult
-   Nothing         -> getFromSource userName
- storeCache result
- return result
+   Nothing         -> do
+     dataResult <- getFromSource userName
+     storeCache dataResult
+     return dataResult
 {% endhighlight %}
 
 Here it is our basic program which implements what we described above, but obviously this code doesn't work because we need to define functions such as `getFromCache`, `getFromSource` and `storeCache`.
