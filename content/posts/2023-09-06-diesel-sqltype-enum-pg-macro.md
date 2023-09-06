@@ -189,7 +189,8 @@ This configuration ensures that your crate can be used as a procedural macro.
 ## Step 4: Documentation and Examples
 A good procedural macro crate should include documentation and examples to help users understand how to use it. Create a README.md file in your crate's root directory and provide usage instructions, examples, and any necessary information about your procedural macro. For more detail you should follow [Cargo Reference here](https://doc.rust-lang.org/cargo/reference/publishing.html)
 
-## Conclusion
+## Conclusion
+
 Congratulations! You've successfully built the `enum_diesel_macros` crate, a powerful tool for simplifying enum handling in Rust when using **Diesel and PostgreSQL**. This procedural macro streamlines the generation of `FromSql` and `ToSql` implementations for your enums, making your code cleaner and more efficient.
 
 Now you have the knowledge to create procedural macros to enhance your Rust development experience with Diesel and PostgreSQL. Happy coding with Rust!
