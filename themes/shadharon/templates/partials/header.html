@@ -1,0 +1,88 @@
+{% import "macros/macros.html" as post_macros %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {# Site title #}
+    {% set current_path = current_path | default(value="/") %}
+    {% if current_path == "/" %}
+    <title>
+        {{ config.title | default(value="Home") }}
+    </title>
+    {% else %}
+    <title>
+        {{ page.title | default(value=config.title) | default(value="Post") }}
+    </title>
+    {% endif %}
+
+    {# Favicon #}
+    {% if config.extra.favicon %}
+    <link rel="icon" type="image/png" href={{ config.extra.favicon }} />
+    {% endif %}
+
+
+
+    {# RSS #}
+    <link rel="alternate" type="application/atom+xml" title="{{ config.title }}" href="{{ get_url(path=" atom.xml",
+        trailing_slash=false) }}">
+    <link rel="stylesheet" type="text/css" media="screen" href={{ get_url(path="main.css" ) }} />
+
+    {%- if config.extra.search_bar %}
+        <script type="text/javascript" src="{{ get_url(path="elasticlunr.min.js") }}"></script>
+        <script type="text/javascript" src="{{ get_url(path="search_index.en.js") }}"></script>
+        <script type="text/javascript" src="{{ get_url(path="search.js") }}"></script>
+    {% endif %}
+
+    {% block js %}
+     {% if config.extra.katex_enable %}
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+
+          <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
+          <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/mathtex-script-type.min.js" integrity="sha384-zWYbd0NBwgTsgIdFKVprSfTh1mbMPe5Hz1X3yY4Sd1h/K1cQoUe36OGwAGz/PcDy" crossorigin="anonymous"></script>
+          {% if config.extra.katex_auto_render %}
+          <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js" integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"
+                  onload="renderMathInElement(document.body);">
+          </script>
+          {% endif %}
+    {% endif %}
+    {% endblock js %}
+
+    {# Custom stylesheets #}
+    {% if config.extra.stylesheets %}
+    {% for stylesheet in config.extra.stylesheets %}
+    <link rel="stylesheet" href="{{ get_url(path=stylesheet) }}">
+    {% endfor %}
+    {% endif %}
+
+    {% block css %}
+    {% if config.extra.katex_enable %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+    {% endif %}
+    {% endblock css %}
+
+    <meta name="description" content="{{ config.description }}">
+
+    <meta name="description" content="{{ config.description }}">
+    {% if is_404 %}
+    <meta name="robots" content="noindex, follow">
+    {% else %}
+    <meta name="robots" content="index, nofollow">
+    {% endif %}
+
+    <meta property="og:title" content="{{ config.title }}">
+    <meta property="og:type" content="article" />
+
+    {% if config.extra.headerImage %}
+        <meta property="og:image" content="{{ config.extra.headerImage }}">
+        <meta name="twitter:card" content="{{ config.extra.headerImage }}">
+    {% endif %}
+
+    {% set current_url = current_url | default(value="/") %}
+    <meta property="og:url" content="{{ current_url }}">
+
+    <meta property="og:description" content="{{ config.description }}">
+    <meta property="og:site_name" content="{{ config.title }}">
+
+</head>
