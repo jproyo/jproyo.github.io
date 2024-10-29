@@ -2,7 +2,7 @@
 base_url = "https://jproyo.github.io"
 compile_sass = true
 build_search_index = true
-generate_feed = true
+generate_feeds = true
 minify_html = true
 title = "Tech, Science, Math and more..."
 
@@ -11,7 +11,7 @@ theme = "shadharon"
 taxonomies = [
   {name = "tags", feed = true}, # each tag will have its own feed
   {name = "tags"}, # you can have taxonomies with the same name in multiple languages
-  {name = "categories", paginate_by = 5},  # 5 items per page for a term
+  {name = "categories", paginate_by = 5, feed = true},  # 5 items per page for a term
   {name = "authors"}, # Basic definition: no feed or pagination
 ]
 

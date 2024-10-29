@@ -63,7 +63,10 @@ requestData userName = do
  cache  <- getFromCache userName
  result <- case cache of
    Just dataResult -> return dataResult
-   Nothing         -> getFromSource userName
+   Nothing         -> do
+     dataResult <- getFromSource userName
+     storeCache dataResult
+     return dataResult
  storeCache result
  return result
 ```
