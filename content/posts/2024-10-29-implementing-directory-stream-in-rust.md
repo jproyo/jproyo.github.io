@@ -1,5 +1,5 @@
 +++
-title = "Implementing a Directory Entry Stream in Rust"
+title = "Part 1: Implementing a Directory Entry Stream in Rust"
 date = 2024-10-29
 
 [taxonomies]
@@ -7,9 +7,13 @@ tags = ["rust", "async", "stream", "filesystem", "tutorial"]
 
 +++ 
 
-# Understanding a Custom Directory Entry Stream in Rust
+[Part 2](@/posts/2024-11-05-implementing-directory-stream-in-rust-part-2.md)
+
+# Part 1: Understanding a Custom Directory Entry Stream in Rust
 
 Today, let's dive into an interesting implementation of `Stream` for directory entry iteration in Rust. This implementation showcases several advanced Rust concepts including async/await, state machines, and safe handling of file I/O.
+
+> **SPOILER ALERT**: This implementation will contain a naive implementaion of the stream directory reader, which is not performant because it will create multiple futures. Go to Part 2 to see a more robust implementation.
 
 ## The Core Structure
 
