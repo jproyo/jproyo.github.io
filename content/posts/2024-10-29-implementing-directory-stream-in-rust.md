@@ -208,32 +208,14 @@ The file we're reading is a directory header file, which serves as an index or m
 
 This separation of concerns between directory structure and content storage is similar to how modern filesystems handle inodes and data blocks, but using content-addressable storage based on hashes.
 
-## Conclusion
-
-This implementation showcases several important patterns and considerations in modern Rust systems programming:
-
-### Architectural Benefits
-1. **Separation of Concerns**: By separating directory metadata from content storage, we achieve:
-   - Better memory efficiency
-   - Improved caching possibilities
-   - Easier content deduplication
-   - More flexible storage management
-
-2. **Async-First Design**: The state machine-based Stream implementation:
-   - Integrates seamlessly with async runtimes
-   - Maintains non-blocking behavior throughout
-   - Efficiently handles I/O operations
-   - Provides predictable resource usage
-
-3. **Safety and Performance**: The implementation balances Rust's safety guarantees with performance:
-   - Uses safe abstractions where possible
-   - Carefully manages memory lifetimes
-   - Minimizes allocations through buffer reuse
-   - Provides clear error handling paths
-
-### Trade-offs and Considerations
+## Trade-offs and Considerations
 
 While this implementation works, the main trade-offs that developers should be aware is that when we are returning `Poll::Pending`, the next call to `poll_next` will again create a future if the previous future has not been complete. This could lead to Memory leaks and performance issue if the file is too big.
 
 We will treat a technique to solve this issue in the [second part](@/posts/2024-11-05-implementing-directory-stream-in-rust-part-2.md) of this serie.
+
+## Conclusion
+
+This implementation showcases several important patterns and considerations in modern Rust systems programming:
+
 
