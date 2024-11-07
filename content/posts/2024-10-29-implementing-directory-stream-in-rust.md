@@ -214,8 +214,14 @@ While this implementation works, the main trade-offs that developers should be a
 
 We will treat a technique to solve this issue in the [second part](@/posts/2024-11-05-implementing-directory-stream-in-rust-part-2.md) of this serie.
 
-## Conclusion
+# Conclusion
 
-This implementation showcases several important patterns and considerations in modern Rust systems programming:
+In this first part of our tutorial, we explored the foundational concepts behind implementing a custom directory entry stream in Rust. We examined the structure of our `DirEntriesIter` and the state machine pattern that facilitates asynchronous reading of directory entries. 
+
+By leveraging Rust's powerful type system and async capabilities, we created a solution that handles directory traversal. However, we also highlighted trade-offs, particularly regarding performance and memory management when dealing with large files.
+
+In the upcoming [second part](@/posts/2024-11-05-implementing-directory-stream-in-rust-part-2.md), we will address these performance concerns and introduce a more robust implementation that minimizes the creation of multiple futures, ensuring a more efficient and reliable directory stream. Stay tuned for further insights and enhancements to our Rust directory stream implementation!
+
+
 
 
