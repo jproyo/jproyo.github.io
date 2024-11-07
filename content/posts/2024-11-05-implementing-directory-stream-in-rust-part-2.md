@@ -74,12 +74,16 @@ impl<'a> Stream for DirEntriesIter<'a> {
                 this.flag = 0;
                 let file = this.reader.clone();
                 let pos = this.position;
+                let waker = cx.waker().clone();
 
                 // Create a future to seek to the next entry position
                 let future = async move {
-                    file.write().await.seek(tokio::io::SeekFrom::Start(pos)).await
+                    let result = file.write().await.seek(tokio::io::SeekFrom::Start(pos)).await;
+                    waker.wake();
+                    result
                 };
                 this.state = State::WaitingReadPosition(Box::pin(future)); // Transition to WaitingReadPosition
+                cx.waker().wake_by_ref();
                 Poll::Pending // Indicate that the operation is pending
             },
 
@@ -88,6 +92,7 @@ impl<'a> Stream for DirEntriesIter<'a> {
                 let result = future.as_mut().poll(cx); // Poll the future
                 on_future!(this, result, State::Eof, |r| {
                     this.state = State::ReadFlag; // Transition to ReadFlag
+                    cx.waker().wake_by_ref();
                     Poll::Pending
                 })
             },
@@ -95,12 +100,15 @@ impl<'a> Stream for DirEntriesIter<'a> {
             // Step 3: ReadFlag
             State::ReadFlag => {
                 let file = this.reader.clone();
-
+                let waker = cx.waker().clone();
                 // Create a future to read the entry type flag
                 let future = async move {
-                    file.write().await.read_u8().await
+                    let result = file.write().await.read_u8().await
+                    waker.wake();
+                    result
                 };
                 this.state = State::WaitingReadFlag(Box::pin(future)); // Transition to WaitingReadFlag
+                cx.waker().wake_by_ref();
                 Poll::Pending
             },
 
@@ -110,6 +118,7 @@ impl<'a> Stream for DirEntriesIter<'a> {
                 on_future!(this, result, State::Eof, |r| {
                     this.state = State::ReadEntryName; // Transition to ReadEntryName
                     this.flag = r; // Store the flag value
+                    cx.waker().wake_by_ref();
                     Poll::Pending
                 })
             },
@@ -117,14 +126,16 @@ impl<'a> Stream for DirEntriesIter<'a> {
             // Step 5: ReadEntryName
             State::ReadEntryName => {
                 let file = this.reader.clone();
-
+                let waker = cx.waker().clone();
                 // Create a future to read the entry name until the null terminator
                 let future = async move {
                     let mut buffer = Vec::new();
                     file.write().await.read_until(0x00, &mut buffer).await?;
+                    waker.wake();
                     Ok(buffer)
                 };
                 this.state = State::WaitingReadEntryName(Box::pin(future)); // Transition to WaitingReadEntryName
+                cx.waker().wake_by_ref();
                 Poll::Pending
             },
 
@@ -135,6 +146,7 @@ impl<'a> Stream for DirEntriesIter<'a> {
                     this.state = State::ReadContent; // Set the next state
                     this.entry_name = r; // Store the entry name
                     this.entry_name.pop(); // Remove the null terminator
+                    cx.waker().wake_by_ref();
                     Poll::Pending
                 })
             },
@@ -142,14 +154,16 @@ impl<'a> Stream for DirEntriesIter<'a> {
             // Step 7: ReadContent
             State::ReadContent => {
                 let file = this.reader.clone();
-
+                let waker = cx.waker().clone();
                 // Create a future to read the content hash
                 let future = async move {
                     let mut buffer = [0u8; 32];
                     file.write().await.read_exact(&mut buffer).await?;
+                    waker.wake();
                     Ok(buffer)
                 };
                 this.state = State::WaitingReadContent(Box::pin(future)); // Transition to WaitingReadContent
+                cx.waker().wake_by_ref();
                 Poll::Pending
             },
 

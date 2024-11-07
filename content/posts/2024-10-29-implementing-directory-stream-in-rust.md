@@ -233,41 +233,7 @@ This implementation showcases several important patterns and considerations in m
 
 ### Trade-offs and Considerations
 
-While this implementation is robust, it comes with some trade-offs that developers should be aware of:
+While this implementation works, the main trade-offs that developers should be aware is that when we are returning `Poll::Pending`, the next call to `poll_next` will again create a future if the previous future has not been complete. This could lead to Memory leaks and performance issue if the file is too big.
 
-1. **Memory Management**:
-   - The use of `Box::leak` creates permanent allocations
-   - This is a conscious trade-off for performance and simplicity
-   - Long-running applications might need to consider alternative approaches
-
-2. **Complexity**:
-   - The state machine pattern adds some complexity
-   - This is justified by the needs of async operations
-   - Documentation and clear state transitions help manage this complexity
-
-3. **File Format Dependencies**:
-   - The implementation is tightly coupled to the header file format
-   - Changes to the format would require significant code changes
-   - This suggests a need for format versioning in production systems
-
-### Future Improvements
-
-Potential areas for enhancement include:
-
-1. **Memory Optimization**:
-   - Implementing a custom allocator for entry management
-   - Adding optional memory limits or cleanup mechanisms
-   - Providing alternative implementations for different use cases
-
-2. **Error Recovery**:
-   - Adding retry mechanisms for transient I/O errors
-   - Implementing partial read recovery
-   - Adding corruption detection and repair capabilities
-
-3. **Performance Enhancements**:
-   - Adding read-ahead capabilities for sequential access patterns
-   - Implementing caching for frequently accessed entries
-   - Optimizing buffer sizes based on usage patterns
-
-This implementation represents a solid foundation for a directory entry streaming system, combining modern Rust practices with practical systems programming considerations. Its design choices reflect a careful balance between safety, performance, and maintainability, making it suitable for production use while leaving room for future optimizations and improvements.
+We will treat a technique to solve this issue in the [second part](@/posts/2024-11-05-implementing-directory-stream-in-rust-part-2.md) of this serie.
 
